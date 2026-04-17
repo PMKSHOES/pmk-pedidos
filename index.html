@@ -424,7 +424,10 @@
 <footer>PMK Shoes · Papa Mama Kilo · Calzado artesanal desde 2009</footer>
 
 <script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT2PF0MeYNRrIPJX7QAT3t0LH-UzJ_4nelOyHP877R14pkagQex7FselGvKuGNUaO11yofZsWbxprQJ/pub?gid=1829079727&single=true&output=csv";
+const SHEET_ID = "16its3gc9bSbIwCZPV-MYrwY7FInlagDsTW-ZJIdNKWM";
+const GID = "1829079727";
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
+const CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(SHEET_URL);
 
 // Columnas del v3
 // A=FECHA B=ORDEN# C=CLIENTE D=ORIGEN E=ARTÍCULO F=COLOR G=TALLE H=CANTIDAD I=TIPO J=PROVEEDOR K=SEÑA L=ESTADO M=NOMBRE_WOO N=EMAIL O=TELÉFONO P=NOTAS Q=FACTURA
