@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMK Shoes — Mis Pedidos</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --dark: #1A1714;
+    --brown: #6B4C35;
+    --terracotta: #C4623A;
+    --sand: #D4B896;
+    --light-sand: #E8DDD0;
+    --border: #C8B89A;
+    --green: #3D5A3E;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    color: var(--dark);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(196,98,58,0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(107,76,53,0.04) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    background: var(--dark);
+    padding: 0 40px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 10;
+  }
+
+  .header-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    font-weight: 300;
+    color: var(--cream);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .header-logo span {
+    color: var(--terracotta);
+  }
+
+  .header-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--sand);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Hero section */
+  .hero {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    font-weight: 300;
+    color: var(--dark);
+    line-height: 1.1;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--terracotta);
+  }
+
+  .hero-subtitle {
+    font-size: 0.88rem;
+    color: var(--brown);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+  }
+
+  /* Search box */
+  .search-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 36px 40px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 24px rgba(26,23,20,0.05);
+  }
+
+  .search-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brown);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 14px 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--dark);
+    background: var(--cream);
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .search-input:focus {
+    border-color: var(--terracotta);
+    background: white;
+  }
+
+  .search-input::placeholder {
+    color: #B0A090;
+    font-size: 0.9rem;
+  }
+
+  .btn-buscar {
+    background: var(--dark);
+    color: var(--cream);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-buscar:hover { background: var(--terracotta); }
+  .btn-buscar:disabled { background: var(--sand); cursor: not-allowed; }
+
+  /* Loading */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    color: var(--brown);
+    font-size: 0.85rem;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 2px solid var(--light-sand);
+    border-top-color: var(--terracotta);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Error */
+  .error-box {
+    display: none;
+    background: #FFF0ED;
+    border: 1.5px solid #E07050;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 0.84rem;
+    color: #8B3020;
+    margin-bottom: 20px;
+  }
+
+  /* Results */
+  .resultado { display: none; }
+
+  .resultado-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .resultado-nombre {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--dark);
+    letter-spacing: 0.02em;
+  }
+
+  .resultado-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--brown);
+    letter-spacing: 0.1em;
+  }
+
+  /* Pedido card */
+  .pedido-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+    animation: fadeIn 0.3s ease forwards;
+    opacity: 0;
+  }
+
+  .pedido-card:hover { box-shadow: 0 4px 20px rgba(26,23,20,0.08); }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .pedido-main {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 18px 22px;
+    gap: 16px;
+  }
+
+  .pedido-info { display: flex; flex-direction: column; gap: 6px; }
+
+  .pedido-articulo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--dark);
+    letter-spacing: 0.02em;
+  }
+
+  .pedido-detalle {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .detalle-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--brown);
+    letter-spacing: 0.06em;
+  }
+
+  .detalle-chip strong { color: var(--dark); }
+
+  .pedido-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  /* Estado badges */
+  .estado-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .estado-PENDIENTE    { background: #FFF3CD; color: #856404; }
+  .estado-PRODUCCIÓN   { background: #FFE0C0; color: #8B4500; }
+  .estado-SEPARADO     { background: #D0E8FF; color: #1A4A8A; }
+  .estado-LISTO        { background: #D4EDDA; color: #1A5C2A; }
+  .estado-ENTREGADO    { background: #E8E8E8; color: #444; }
+  .estado-CANCELADO    { background: #FFD0CC; color: #8B1A0A; }
+
+  .pedido-factura {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--sand);
+    letter-spacing: 0.08em;
+  }
+
+  /* Tipo tag */
+  .tipo-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.06em;
+  }
+
+  .tipo-PRE-ORDER { background: var(--light-sand); color: var(--brown); }
+  .tipo-STOCK     { background: #E8F0E8; color: var(--green); }
+  .tipo-CURVA     { background: #E8E8F5; color: #4A4A8A; }
+
+  /* Empty state */
+  .empty-state {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--brown);
+  }
+
+  .empty-icon { font-size: 2.5rem; margin-bottom: 16px; }
+  .empty-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 300; margin-bottom: 8px; }
+  .empty-sub { font-size: 0.84rem; color: var(--sand); }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--border);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 0 20px; }
+    .search-card { padding: 24px 20px; }
+    .search-row { flex-direction: column; }
+    .pedido-main { grid-template-columns: 1fr; }
+    .pedido-meta { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">PMK <span>Shoes</span></div>
+  <div class="header-sub">Estado de pedidos</div>
+</header>
+
+<div class="container">
+
+  <div class="hero">
+    <h1 class="hero-title">Mis <em>pedidos</em></h1>
+    <p class="hero-subtitle">Consultá el estado de tus pedidos en tiempo real</p>
+  </div>
+
+  <div class="search-card">
+    <label class="search-label">Tu nombre</label>
+    <div class="search-row">
+      <input 
+        type="text" 
+        class="search-input" 
+        id="inputNombre"
+        placeholder="Escribí tu nombre tal como lo registraste..."
+        autocomplete="off"
+        autocorrect="off"
+      >
+      <button class="btn-buscar" id="btnBuscar" onclick="buscarPedidos()">
+        Buscar
+      </button>
+    </div>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Buscando tus pedidos...
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <div class="empty-icon">🔍</div>
+    <div class="empty-title">No encontramos pedidos</div>
+    <div class="empty-sub">Verificá que el nombre sea exactamente como lo registraste</div>
+  </div>
+
+  <div class="resultado" id="resultado">
+    <div class="resultado-header">
+      <div class="resultado-nombre" id="resultadoNombre"></div>
+      <div class="resultado-count" id="resultadoCount"></div>
+    </div>
+    <div id="listaPedidos"></div>
+  </div>
+
+</div>
+
+<footer>PMK Shoes · Papa Mama Kilo · Calzado artesanal desde 2009</footer>
+
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT2PF0MeYNRrIPJX7QAT3t0LH-UzJ_4nelOyHP877R14pkagQex7FselGvKuGNUaO11yofZsWbxprQJ/pub?gid=1829079727&single=true&output=csv";
+
+// Columnas del v3
+// A=FECHA B=ORDEN# C=CLIENTE D=ORIGEN E=ARTÍCULO F=COLOR G=TALLE H=CANTIDAD I=TIPO J=PROVEEDOR K=SEÑA L=ESTADO M=NOMBRE_WOO N=EMAIL O=TELÉFONO P=NOTAS Q=FACTURA
+
+document.getElementById('inputNombre').addEventListener('keydown', e => {
+  if (e.key === 'Enter') buscarPedidos();
+});
+
+function parseCSV(text) {
+  const lines = text.split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    if (!lines[i].trim()) continue;
+    // Simple CSV parse handling quotes
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    for (let ch of lines[i]) {
+      if (ch === '"') { inQuotes = !inQuotes; }
+      else if (ch === ',' && !inQuotes) { values.push(current.trim()); current = ''; }
+      else { current += ch; }
+    }
+    values.push(current.trim());
+    const row = {};
+    headers.forEach((h, idx) => row[h] = (values[idx] || '').replace(/^"|"$/g, '').trim());
+    rows.push(row);
+  }
+  return rows;
+}
+
+async function buscarPedidos() {
+  const nombre = document.getElementById('inputNombre').value.trim();
+  if (!nombre) return;
+
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('resultado').style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('btnBuscar').disabled = true;
+
+  try {
+    const res = await fetch(CSV_URL);
+    if (!res.ok) throw new Error('No se pudo conectar con la planilla');
+    const text = await res.text();
+    const rows = parseCSV(text);
+
+    // Filter by name (case insensitive, partial match)
+    const nombreLower = nombre.toLowerCase();
+    const pedidos = rows.filter(r => {
+      const cliente = (r['CLIENTE'] || r['C'] || '').toLowerCase();
+      return cliente.includes(nombreLower) && cliente !== '' && r['ESTADO'] && r['ESTADO'] !== 'CANCELADO';
+    });
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('btnBuscar').disabled = false;
+
+    if (pedidos.length === 0) {
+      // Try including cancelled
+      const todosPedidos = rows.filter(r => {
+        const cliente = (r['CLIENTE'] || r['C'] || '').toLowerCase();
+        return cliente.includes(nombreLower) && cliente !== '';
+      });
+      if (todosPedidos.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+      } else {
+        renderPedidos(todosPedidos, nombre);
+      }
+      return;
+    }
+
+    renderPedidos(pedidos, nombre);
+
+  } catch(err) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('btnBuscar').disabled = false;
+    const box = document.getElementById('errorBox');
+    box.textContent = 'Error al cargar los pedidos. Intentá nuevamente en unos segundos.';
+    box.style.display = 'block';
+  }
+}
+
+function renderPedidos(pedidos, nombre) {
+  // Get display name from first result
+  const displayNombre = pedidos[0]['CLIENTE'] || nombre;
+  
+  document.getElementById('resultadoNombre').textContent = displayNombre;
+  document.getElementById('resultadoCount').textContent = 
+    `${pedidos.length} pedido${pedidos.length !== 1 ? 's' : ''}`;
+
+  const lista = document.getElementById('listaPedidos');
+  lista.innerHTML = '';
+
+  pedidos.forEach((p, i) => {
+    const articulo = p['ARTÍCULO'] || p['ARTICULO'] || p['E'] || '—';
+    const color = p['COLOR'] || p['F'] || '—';
+    const talle = p['TALLE'] || p['G'] || '—';
+    const fecha = p['FECHA'] || p['A'] || '';
+    const estado = (p['ESTADO'] || p['L'] || '').trim();
+    const tipo = p['TIPO'] || p['I'] || '';
+    const factura = p['FACTURA'] || p['Q'] || '';
+    const cantidad = p['CANTIDAD'] || p['H'] || '1';
+
+    const estadoClass = `estado-${estado.replace(/\s/g, '-')}` ;
+    const tipoClass = `tipo-${tipo.replace(/\s/g, '-')}`;
+
+    const card = document.createElement('div');
+    card.className = 'pedido-card';
+    card.style.animationDelay = `${i * 0.05}s`;
+
+    card.innerHTML = `
+      <div class="pedido-main">
+        <div class="pedido-info">
+          <div class="pedido-articulo">${articulo} <span style="color:var(--brown);font-weight:300">${color}</span></div>
+          <div class="pedido-detalle">
+            <span class="detalle-chip">Talle <strong>${talle}</strong></span>
+            ${cantidad > 1 ? `<span class="detalle-chip">Cantidad <strong>${cantidad}</strong></span>` : ''}
+            ${fecha ? `<span class="detalle-chip">Pedido <strong>${fecha}</strong></span>` : ''}
+            ${tipo ? `<span class="tipo-tag ${tipoClass}">${tipo}</span>` : ''}
+          </div>
+        </div>
+        <div class="pedido-meta">
+          <span class="estado-badge ${estadoClass}">${estado || 'Sin estado'}</span>
+          ${factura ? `<span class="pedido-factura">Factura #${factura}</span>` : ''}
+        </div>
+      </div>
+    `;
+
+    lista.appendChild(card);
+  });
+
+  document.getElementById('resultado').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
