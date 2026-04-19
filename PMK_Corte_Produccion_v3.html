@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMK Shoes — Corte a Producción v3</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --ink:     #0F0D0B;
+  --paper:   #F7F3EE;
+  --warm:    #EDE6DA;
+  --clay:    #C4623A;
+  --clay-dk: #9E4B28;
+  --clay-lt: #EDCFBF;
+  --dust:    #9C8A78;
+  --bone:    #D4C9B8;
+  --slate:   #3B3530;
+  --sage:    #4A6741;
+  --fog:     #7A8C82;
+  --gold:    #B8963E;
+  --indigo:  #3A4E7A;
+  --border:  #C8BCA8;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+header {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0 40px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid #2A2520;
+}
+
+.header-brand { display: flex; align-items: baseline; gap: 12px; }
+.header-brand h1 { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: 400; letter-spacing: 0.01em; }
+.header-brand .sep { color: var(--dust); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+.header-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--clay);
+  border: 1px solid var(--clay); padding: 3px 10px; border-radius: 2px;
+}
+
+.wrap { max-width: 1100px; margin: 0 auto; padding: 36px 24px 60px; position: relative; z-index: 1; }
+
+.sec-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--dust);
+  margin-bottom: 12px; display: flex; align-items: center; gap: 10px;
+}
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--bone); }
+
+/* UPLOAD */
+.upload-zone {
+  border: 1.5px dashed var(--bone); border-radius: 4px; background: white;
+  padding: 48px 24px; text-align: center; cursor: pointer;
+  transition: all 0.25s; margin-bottom: 16px; position: relative; overflow: hidden;
+}
+.upload-zone::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--clay-lt) 0%, transparent 60%);
+  opacity: 0; transition: opacity 0.25s;
+}
+.upload-zone:hover::before, .upload-zone.dragover::before { opacity: 0.15; }
+.upload-zone:hover, .upload-zone.dragover { border-color: var(--clay); border-style: solid; }
+.upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.upload-icon {
+  width: 48px; height: 48px; margin: 0 auto 16px;
+  border: 1.5px solid var(--bone); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; color: var(--dust); transition: all 0.25s; background: var(--warm);
+}
+.upload-zone:hover .upload-icon { border-color: var(--clay); color: var(--clay); transform: translateY(-2px); }
+.upload-title { font-size: 0.92rem; font-weight: 600; color: var(--slate); margin-bottom: 4px; }
+.upload-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--dust); }
+
+.file-loaded {
+  display: none; background: #EFF6EF; border: 1.5px solid #93BC8E;
+  border-radius: 4px; padding: 14px 18px; margin-bottom: 16px;
+  align-items: center; gap: 12px;
+}
+.file-icon { font-size: 1.1rem; }
+.file-info { flex: 1; }
+.file-name { font-size: 0.85rem; font-weight: 600; color: #2A5A25; }
+.file-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: #5A8055; margin-top: 2px; }
+.btn-cambiar {
+  background: none; border: 1px solid #93BC8E; color: #3A7A35;
+  font-size: 0.72rem; cursor: pointer; padding: 5px 12px; border-radius: 3px;
+  font-family: 'Syne', sans-serif; font-weight: 600; transition: all 0.15s;
+}
+.btn-cambiar:hover { background: #D4EDD2; }
+
+/* STATS */
+.stats-bar { display: none; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat-chip {
+  background: white; border: 1px solid var(--bone); border-radius: 3px;
+  padding: 5px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  color: var(--dust); display: flex; align-items: center; gap: 6px;
+}
+.stat-chip strong { color: var(--clay); font-weight: 600; }
+.stat-chip .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--bone); }
+
+/* FILTROS */
+.filtros-panel {
+  background: white; border: 1px solid var(--border);
+  border-radius: 4px; margin-bottom: 20px; overflow: hidden;
+}
+.filtros-header {
+  padding: 14px 20px; background: var(--warm); border-bottom: 1px solid var(--bone);
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; user-select: none;
+}
+.filtros-header-left { display: flex; align-items: center; gap: 10px; }
+.filtros-header-title {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; color: var(--slate);
+}
+.filtros-active-count {
+  background: var(--clay); color: white; font-size: 0.6rem;
+  font-family: 'JetBrains Mono', monospace; padding: 2px 7px;
+  border-radius: 10px; display: none;
+}
+.filtros-chevron { font-size: 0.75rem; color: var(--dust); transition: transform 0.2s; }
+.filtros-panel.collapsed .filtros-chevron { transform: rotate(-90deg); }
+.filtros-panel.collapsed .filtros-body { display: none; }
+.filtros-body { padding: 18px 20px; }
+
+.filtros-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 12px; margin-bottom: 16px;
+}
+.filtro-grupo label {
+  display: block; font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase; color: var(--dust); margin-bottom: 5px;
+}
+.filtro-grupo select, .filtro-grupo input {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border);
+  border-radius: 3px; font-family: 'Syne', sans-serif; font-size: 0.8rem;
+  background: var(--paper); color: var(--ink); outline: none;
+  transition: border-color 0.15s; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239C8A78' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px;
+}
+.filtro-grupo input { background-image: none; padding-right: 10px; cursor: text; }
+.filtro-grupo select:focus, .filtro-grupo input:focus { border-color: var(--clay); }
+
+/* Estado checkboxes */
+.estado-checks {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px;
+  padding: 14px 16px; background: var(--warm); border-radius: 3px;
+  border: 1px solid var(--bone);
+}
+.estado-check-label {
+  font-size: 0.62rem; font-weight: 600; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--dust); width: 100%; margin-bottom: 8px;
+}
+.estado-tag {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 2px; cursor: pointer;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  border: 1px solid var(--bone); background: white; color: var(--slate);
+  transition: all 0.15s; user-select: none;
+}
+.estado-tag input { display: none; }
+.estado-tag.checked { border-color: currentColor; }
+.tag-pendiente.checked    { background: #FFF8E1; color: #B8860B; border-color: #D4A500; }
+.tag-fact-pre.checked     { background: #E8F0FE; color: #3A4E9A; border-color: #7A8EDA; }
+.tag-produccion.checked   { background: #FFF0D8; color: #8B5000; border-color: #E0B060; }
+.tag-listo.checked        { background: #E8F5E9; color: #2E7D32; border-color: #81C784; }
+.tag-separado.checked     { background: #F3E5F5; color: #6A1B9A; border-color: #CE93D8; }
+.tag-entregado.checked    { background: #E0F2F1; color: #00695C; border-color: #80CBC4; }
+.tag-cancelado.checked    { background: #FFEBEE; color: #B71C1C; border-color: #EF9A9A; }
+
+.vista-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding-top: 14px; border-top: 1px solid var(--warm); flex-wrap: wrap;
+}
+.vista-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dust); margin-right: 2px; }
+.toggle-group { display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; }
+.toggle-btn {
+  padding: 6px 16px; font-size: 0.75rem; font-family: 'Syne', sans-serif;
+  font-weight: 500; cursor: pointer; border: none; background: white; color: var(--dust);
+  transition: all 0.15s; border-right: 1px solid var(--border);
+}
+.toggle-btn:last-child { border-right: none; }
+.toggle-btn:hover { background: var(--warm); color: var(--slate); }
+.toggle-btn.active { background: var(--ink); color: var(--paper); }
+
+/* ACCIONES */
+.acciones { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 24px; }
+.btn-primary {
+  background: var(--clay); color: white; border: none; padding: 13px 30px;
+  border-radius: 3px; font-family: 'Syne', sans-serif; font-size: 0.85rem;
+  font-weight: 700; cursor: pointer; letter-spacing: 0.03em; transition: background 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover:not(:disabled) { background: var(--clay-dk); }
+.btn-primary:disabled { background: var(--bone); cursor: not-allowed; color: var(--dust); }
+.btn-secondary {
+  background: transparent; color: var(--dust); border: 1px solid var(--border);
+  padding: 13px 20px; border-radius: 3px; font-family: 'Syne', sans-serif;
+  font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+.btn-secondary:hover { border-color: var(--slate); color: var(--slate); background: var(--warm); }
+
+/* ERROR */
+.error-box {
+  display: none; background: #FDF0EC; border: 1px solid #E8A090;
+  border-left: 3px solid var(--clay); border-radius: 3px; padding: 12px 16px;
+  font-size: 0.82rem; color: #8B3020; margin-bottom: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* RESULTADO */
+.resultado { display: none; }
+.resultado-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
+.resultado-titulo { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 400; color: var(--ink); }
+.resultado-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--dust); margin-top: 4px; }
+
+.resumen-box {
+  background: var(--warm); border: 1px solid var(--bone); border-left: 3px solid var(--clay);
+  border-radius: 3px; padding: 14px 18px; font-size: 0.82rem; line-height: 1.7;
+  margin-bottom: 20px; color: var(--slate);
+}
+.resumen-box strong { color: var(--clay); }
+
+.filtros-info {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--dust);
+  margin-bottom: 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.filtro-tag {
+  background: var(--warm); border: 1px solid var(--bone);
+  padding: 3px 8px; border-radius: 2px; color: var(--slate); font-size: 0.65rem;
+}
+
+/* BLOQUE */
+.bloque { margin-bottom: 28px; }
+.bloque-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+.bloque-titulo { display: flex; align-items: center; gap: 10px; }
+.prov-badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 600;
+  letter-spacing: 0.1em; padding: 4px 12px; border-radius: 2px; text-transform: uppercase;
+}
+.badge-seba  { background: #DDEAFF; color: #1A3A80; border: 1px solid #A8C0F0; }
+.badge-lean  { background: #DDEFDD; color: #1A5A1A; border: 1px solid #90C890; }
+.badge-dark  { background: var(--ink); color: var(--paper); border: 1px solid var(--ink); }
+.badge-sage  { background: #DAE8DA; color: #2A5A2A; border: 1px solid #90B890; }
+.bloque-sub  { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--dust); }
+.bloque-actions { display: flex; gap: 6px; }
+
+/* TABLA */
+.tabla-wrap { background: white; border: 1px solid var(--border); border-radius: 4px; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.77rem; }
+thead tr { background: var(--ink); color: var(--paper); }
+thead th {
+  padding: 10px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+  font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  text-align: center; white-space: nowrap;
+}
+thead th.tl { text-align: left; }
+tbody tr { border-bottom: 1px solid var(--warm); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:nth-child(even) { background: #FAFAF8; }
+tbody tr:hover { background: var(--warm); }
+tbody td { padding: 9px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; text-align: center; color: var(--slate); }
+tbody td.tl { text-align: left; font-family: 'Syne', sans-serif; font-weight: 600; color: var(--ink); font-size: 0.8rem; }
+tbody td.tl2 { text-align: left; font-family: 'Syne', sans-serif; font-size: 0.77rem; color: var(--slate); }
+.td-n { color: var(--clay); font-weight: 600; }
+.td-zero { color: var(--bone); }
+tfoot tr { background: var(--slate); }
+tfoot td {
+  padding: 9px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+  font-weight: 600; text-align: center; color: var(--bone); letter-spacing: 0.05em;
+}
+tfoot td.tl { text-align: left; color: var(--paper); }
+
+/* ESTADO BADGE en tabla */
+.estado-badge {
+  display: inline-block; padding: 2px 7px; border-radius: 2px;
+  font-size: 0.58rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.eb-pendiente  { background: #FFF8E1; color: #B8860B; }
+.eb-fact-pre   { background: #E8F0FE; color: #3A4E9A; }
+.eb-produccion { background: #FFF0D8; color: #8B5000; }
+.eb-listo      { background: #E8F5E9; color: #2E7D32; }
+.eb-separado   { background: #F3E5F5; color: #6A1B9A; }
+.eb-entregado  { background: #E0F2F1; color: #00695C; }
+.eb-cancelado  { background: #FFEBEE; color: #B71C1C; }
+
+/* BOTONES RESULTADO */
+.btn-copy { background: var(--sage); color: white; border: none; padding: 8px 16px; border-radius: 3px; font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; gap: 5px; }
+.btn-copy:hover { background: #3A5531; }
+.btn-copy-b { background: var(--slate); color: white; border: none; padding: 8px 16px; border-radius: 3px; font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.btn-copy-b:hover { background: var(--ink); }
+.btn-pdf { background: var(--ink); color: white; border: none; padding: 8px 16px; border-radius: 3px; font-family: 'Syne', sans-serif; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.btn-pdf:hover { background: #333; }
+.resultado-footer { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--bone); }
+.divider { border: none; border-top: 1px solid var(--bone); margin: 20px 0; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--ink); color: var(--paper); padding: 12px 20px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; z-index: 9999;
+  transform: translateY(80px); opacity: 0; transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  pointer-events: none; display: flex; align-items: center; gap: 8px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-dot { width: 6px; height: 6px; background: var(--sage); border-radius: 50%; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.resultado { animation: fadeIn 0.3s ease; }
+.bloque { animation: fadeIn 0.3s ease both; }
+
+@media print {
+  header, .sec-label, .upload-zone, .file-loaded, .stats-bar,
+  .filtros-panel, .acciones, .error-box, .resultado-footer,
+  .bloque-actions, .toast { display: none !important; }
+  body { background: white; }
+  .wrap { padding: 10px; max-width: 100%; }
+  .resultado { display: block !important; }
+  .tabla-wrap { border: 1px solid #999; overflow: visible; }
+  table { font-size: 0.65rem; }
+  thead tr { background: #0F0D0B !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  tbody tr:nth-child(even) { background: #F7F3EE !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  tfoot tr { background: #3B3530 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bloque { page-break-inside: avoid; }
+  .print-header { display: block !important; }
+}
+.print-header { display: none; font-family: 'Playfair Display', serif; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #0F0D0B; }
+.print-header h2 { font-size: 1.4rem; }
+.print-header p { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #9C8A78; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <h1>PMK Shoes</h1>
+    <span class="sep">/</span>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--dust)">Corte a Producción</span>
+  </div>
+  <div class="header-badge">v3 · una fila por talle</div>
+</header>
+
+<div class="wrap">
+
+  <div class="sec-label">01 — Cargar planilla</div>
+
+  <div class="upload-zone" id="uploadZone">
+    <input type="file" id="fileInput" accept=".xlsx,.xls" onchange="cargarArchivo(this.files[0])">
+    <div class="upload-icon">📂</div>
+    <div class="upload-title">Arrastrá el archivo PMK_PEDIDOS_MAESTRO_v3 aquí</div>
+    <div class="upload-sub">o hacé clic para buscar · formato .xlsx · hoja PEDIDOS</div>
+  </div>
+
+  <div class="file-loaded" id="fileCargado">
+    <span class="file-icon">✅</span>
+    <div class="file-info">
+      <div class="file-name" id="nombreArchivo"></div>
+      <div class="file-meta" id="fileMeta"></div>
+    </div>
+    <button class="btn-cambiar" onclick="resetArchivo()">Cambiar archivo</button>
+  </div>
+
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-chip"><div class="dot"></div>Total filas: <strong id="statTotal">0</strong></div>
+    <div class="stat-chip"><div class="dot"></div>Pendiente: <strong id="statPendiente">0</strong></div>
+    <div class="stat-chip"><div class="dot"></div>Fact. Preorder: <strong id="statFactPre">0</strong></div>
+    <div class="stat-chip"><div class="dot"></div>Producción: <strong id="statProduccion">0</strong></div>
+    <div class="stat-chip"><div class="dot"></div>Listo: <strong id="statListo">0</strong></div>
+    <div class="stat-chip"><div class="dot"></div>Separado: <strong id="statSeparado">0</strong></div>
+    <div class="stat-chip"><div class="dot"></div>Pitti/Bohemias: <strong id="statPitti">0</strong></div>
+    <div class="stat-chip"><div class="dot"></div>Faire/EEUU: <strong id="statFaire">0</strong></div>
+  </div>
+
+  <div class="sec-label">02 — Filtros y vista</div>
+
+  <div class="filtros-panel" id="filtrosPanel">
+    <div class="filtros-header" onclick="toggleFiltros()">
+      <div class="filtros-header-left">
+        <span class="filtros-header-title">🔍 Filtros del corte</span>
+        <span class="filtros-active-count" id="activeCount">0</span>
+      </div>
+      <span class="filtros-chevron">▾</span>
+    </div>
+    <div class="filtros-body">
+
+      <!-- Estado checkboxes -->
+      <div class="estado-checks">
+        <div class="estado-check-label">Estado del pedido</div>
+        <label class="estado-tag tag-pendiente" id="tag-PENDIENTE">
+          <input type="checkbox" value="PENDIENTE" onchange="toggleEstado(this)"> ⏳ Pendiente
+        </label>
+        <label class="estado-tag tag-fact-pre" id="tag-FACTURADO PREORDER">
+          <input type="checkbox" value="FACTURADO PREORDER" onchange="toggleEstado(this)"> 🧾 Facturado Preorder
+        </label>
+        <label class="estado-tag tag-produccion" id="tag-PRODUCCIÓN">
+          <input type="checkbox" value="PRODUCCIÓN" onchange="toggleEstado(this)"> 🏭 Producción
+        </label>
+        <label class="estado-tag tag-listo" id="tag-LISTO">
+          <input type="checkbox" value="LISTO" onchange="toggleEstado(this)"> ✅ Listo
+        </label>
+        <label class="estado-tag tag-separado" id="tag-SEPARADO">
+          <input type="checkbox" value="SEPARADO" onchange="toggleEstado(this)"> 📦 Separado
+        </label>
+        <label class="estado-tag tag-entregado" id="tag-ENTREGADO">
+          <input type="checkbox" value="ENTREGADO" onchange="toggleEstado(this)"> 🚚 Entregado
+        </label>
+        <label class="estado-tag tag-cancelado" id="tag-CANCELADO">
+          <input type="checkbox" value="CANCELADO" onchange="toggleEstado(this)"> ❌ Cancelado
+        </label>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--dust);margin-left:4px;align-self:center">
+          (vacío = todos los estados)
+        </span>
+      </div>
+
+      <div class="filtros-grid">
+        <div class="filtro-grupo">
+          <label>Origen</label>
+          <select id="filtroOrigen" onchange="actualizarContadorFiltros()">
+            <option value="todos">Todos</option>
+            <option value="P">Pitti / Bohemias (P)</option>
+            <option value="X">Faire / EEUU (X)</option>
+            <option value="CF">Consumidor final (CF)</option>
+            <option value="MAYO">Mayoristas (MAYO)</option>
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label>Tipo</label>
+          <select id="filtroTipo" onchange="actualizarContadorFiltros()">
+            <option value="todos">Todos</option>
+            <option value="PRE-ORDER">Pre-Order</option>
+            <option value="STOCK">Stock</option>
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label>Seña</label>
+          <select id="filtroSenia" onchange="actualizarContadorFiltros()">
+            <option value="todos">Todos</option>
+            <option value="con-senia">Con seña (X)</option>
+            <option value="sin-senia">Sin seña</option>
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label>Proveedor</label>
+          <select id="filtroProveedor" onchange="actualizarContadorFiltros()">
+            <option value="todos">Todos</option>
+            <option value="SEBA">SEBA</option>
+            <option value="LEAN">LEAN</option>
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label>Modelo / Artículo</label>
+          <select id="filtroModelo" onchange="actualizarContadorFiltros()">
+            <option value="todos">Todos los modelos</option>
+          </select>
+        </div>
+        <div class="filtro-grupo">
+          <label>Fecha desde</label>
+          <input type="date" id="filtroFechaDesde" onchange="actualizarContadorFiltros()">
+        </div>
+        <div class="filtro-grupo">
+          <label>Fecha hasta</label>
+          <input type="date" id="filtroFechaHasta" onchange="actualizarContadorFiltros()">
+        </div>
+        <div class="filtro-grupo">
+          <label>Cliente (buscar)</label>
+          <input type="text" id="filtroCliente" placeholder="Ej: CICCIOLI" oninput="actualizarContadorFiltros()">
+        </div>
+      </div>
+
+      <div class="vista-bar">
+        <span class="vista-label">Vista:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-v-unificada" onclick="setVista('unificada')">Tabla unificada</button>
+          <button class="toggle-btn" id="btn-v-proveedor" onclick="setVista('proveedor')">Por proveedor</button>
+          <button class="toggle-btn" id="btn-v-modelo" onclick="setVista('modelo')">Por modelo</button>
+          <button class="toggle-btn" id="btn-v-estado" onclick="setVista('estado')">Por estado</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="acciones">
+    <button class="btn-primary" id="btnCorte" onclick="generarCorte()" disabled>
+      ✂&nbsp; Generar corte
+    </button>
+    <button class="btn-secondary" onclick="resetFiltros()">Limpiar filtros</button>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+  <div class="resultado" id="resultado"></div>
+
+</div>
+
+<div class="toast" id="toast"><span class="toast-dot"></span><span id="toastMsg"></span></div>
+
+<script>
+// ── COLUMNAS v3 ──
+// A=0  FECHA
+// B=1  ORDEN #
+// C=2  CLIENTE
+// D=3  ORIGEN
+// E=4  ARTÍCULO
+// F=5  COLOR
+// G=6  TALLE
+// H=7  CANTIDAD
+// I=8  TIPO
+// J=9  PROVEEDOR
+// K=10 SEÑA
+// L=11 ESTADO
+// M=12 PEDIDO PROD.
+// N=13 ENTREGADO
+// O=14 NOMBRE WOO
+// P=15 EMAIL
+// Q=16 TELÉFONO
+// R=17 NOTAS
+
+const TALLES = [35,36,37,38,39,40,41,42,43,44,45];
+
+let vistaActual = 'unificada';
+let todosLosPedidos = [];
+let ultimoCorte = null;
+let estadosSeleccionados = new Set();
+
+// ── DRAG & DROP ──
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', ()  => zone.classList.remove('dragover'));
+zone.addEventListener('drop',      e  => {
+  e.preventDefault(); zone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0]; if (f) cargarArchivo(f);
+});
+
+function toggleFiltros() {
+  document.getElementById('filtrosPanel').classList.toggle('collapsed');
+}
+
+function setVista(v) {
+  vistaActual = v;
+  ['unificada','proveedor','modelo','estado'].forEach(x =>
+    document.getElementById('btn-v-'+x).classList.toggle('active', x===v)
+  );
+}
+
+function toggleEstado(cb) {
+  const val = cb.value;
+  const label = cb.closest('.estado-tag');
+  if (cb.checked) {
+    estadosSeleccionados.add(val);
+    label.classList.add('checked');
+  } else {
+    estadosSeleccionados.delete(val);
+    label.classList.remove('checked');
+  }
+  actualizarContadorFiltros();
+}
+
+function actualizarContadorFiltros() {
+  const ids = ['filtroOrigen','filtroTipo','filtroSenia','filtroProveedor','filtroModelo'];
+  let n = ids.filter(id => document.getElementById(id).value !== 'todos').length;
+  if (estadosSeleccionados.size > 0) n++;
+  if (document.getElementById('filtroFechaDesde').value) n++;
+  if (document.getElementById('filtroFechaHasta').value) n++;
+  if (document.getElementById('filtroCliente').value.trim()) n++;
+  const el = document.getElementById('activeCount');
+  el.textContent = n;
+  el.style.display = n > 0 ? 'inline' : 'none';
+}
+
+function resetArchivo() {
+  todosLosPedidos = [];
+  document.getElementById('fileCargado').style.display  = 'none';
+  document.getElementById('uploadZone').style.display   = 'block';
+  document.getElementById('statsBar').style.display     = 'none';
+  document.getElementById('btnCorte').disabled          = true;
+  document.getElementById('resultado').style.display    = 'none';
+  document.getElementById('resultado').innerHTML        = '';
+  document.getElementById('filtroModelo').innerHTML     = '<option value="todos">Todos los modelos</option>';
+  document.getElementById('fileInput').value            = '';
+}
+
+function resetFiltros() {
+  ['filtroOrigen','filtroTipo','filtroSenia','filtroProveedor','filtroModelo']
+    .forEach(id => { document.getElementById(id).value = 'todos'; });
+  ['filtroFechaDesde','filtroFechaHasta','filtroCliente']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  // reset estado checkboxes
+  estadosSeleccionados.clear();
+  document.querySelectorAll('.estado-tag input[type=checkbox]').forEach(cb => {
+    cb.checked = false;
+    cb.closest('.estado-tag').classList.remove('checked');
+  });
+  actualizarContadorFiltros();
+}
+
+// ── PARSEAR FECHA ──
+function parsearFecha(raw) {
+  if (!raw) return null;
+  // ISO timestamp: 2026-04-18T01:10:45.000Z
+  if (typeof raw === 'string' && raw.includes('T')) {
+    const d = new Date(raw);
+    return isNaN(d) ? null : d;
+  }
+  // Excel serial number
+  if (typeof raw === 'number') {
+    const d = new Date(Math.round((raw - 25569) * 86400 * 1000));
+    return isNaN(d) ? null : d;
+  }
+  // String DD/MM/YY or DD/MM/YYYY
+  if (typeof raw === 'string') {
+    const parts = raw.split('/');
+    if (parts.length === 3) {
+      let [d, m, y] = parts.map(p => parseInt(p));
+      if (y < 100) y += 2000;
+      const dt = new Date(y, m-1, d);
+      return isNaN(dt) ? null : dt;
+    }
+  }
+  return null;
+}
+
+// ── NORMALIZAR ESTADO ──
+function normalizarEstado(raw) {
+  if (!raw) return 'PENDIENTE';
+  const s = String(raw).trim().toUpperCase();
+  if (s.includes('FACTURADO')) return 'FACTURADO PREORDER';
+  if (s === 'PRODUCCIÓN' || s === 'PRODUCCION') return 'PRODUCCIÓN';
+  if (s === 'LISTO') return 'LISTO';
+  if (s === 'SEPARADO') return 'SEPARADO';
+  if (s === 'ENTREGADO') return 'ENTREGADO';
+  if (s === 'CANCELADO') return 'CANCELADO';
+  return 'PENDIENTE';
+}
+
+// ── NORMALIZAR TIPO ──
+function normalizarTipo(raw) {
+  if (!raw) return 'PRE-ORDER';
+  const s = String(raw).trim().toUpperCase();
+  if (s.includes('STOCK')) return 'STOCK';
+  return 'PRE-ORDER';
+}
+
+// ── CARGAR ARCHIVO ──
+function cargarArchivo(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+
+      // Buscar hoja PEDIDOS (o la primera si no existe)
+      let wsName = wb.SheetNames.find(n => n.toUpperCase() === 'PEDIDOS');
+      if (!wsName) wsName = wb.SheetNames[0];
+      const ws = wb.Sheets[wsName];
+      if (!ws) { mostrarError('No encontré la hoja PEDIDOS en el archivo.'); return; }
+
+      const data = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+      todosLosPedidos = [];
+
+      // Fila 0 = encabezados, datos desde fila 1
+      for (let i = 1; i < data.length; i++) {
+        const row = data[i];
+        if (!row) continue;
+
+        // Necesitamos al menos ARTÍCULO (col E=4)
+        const articulo = row[4] ? String(row[4]).trim().toUpperCase() : null;
+        if (!articulo) continue;
+
+        const talle    = row[6] !== null && row[6] !== undefined ? parseInt(row[6]) : null;
+        const cantidad = row[7] !== null && row[7] !== undefined ? parseInt(row[7]) : 1;
+        if (!talle || isNaN(talle) || !cantidad || isNaN(cantidad)) continue;
+
+        const fecha    = parsearFecha(row[0]);
+        const estado   = normalizarEstado(row[11]);
+        const tipo     = normalizarTipo(row[8]);
+        const seña     = row[10] ? String(row[10]).trim().toUpperCase() === 'X' : false;
+        const prov     = row[9]  ? String(row[9]).trim().toUpperCase() : null;
+        const origen   = row[3]  ? String(row[3]).trim().toUpperCase() : null;
+
+        todosLosPedidos.push({
+          fecha,
+          orden:    row[1]  ? String(row[1]).trim() : '',
+          cliente:  row[2]  ? String(row[2]).trim() : '',
+          origen,
+          articulo,
+          color:    row[5]  ? String(row[5]).trim().toUpperCase() : '',
+          talle,
+          cantidad,
+          tipo,
+          proveedor: prov,
+          seña,
+          estado,
+          nombreWoo: row[14] ? String(row[14]).trim() : '',
+          email:     row[15] ? String(row[15]).trim() : '',
+          telefono:  row[16] ? String(row[16]).trim() : '',
+          notas:     row[17] ? String(row[17]).trim() : '',
+        });
+      }
+
+      if (todosLosPedidos.length === 0) {
+        mostrarError('No encontré filas válidas en la hoja PEDIDOS.'); return;
+      }
+
+      // Poblar select de modelos
+      const modelos = [...new Set(todosLosPedidos.map(p => p.articulo))].sort();
+      const sel = document.getElementById('filtroModelo');
+      sel.innerHTML = '<option value="todos">Todos los modelos</option>' +
+        modelos.map(m => `<option value="${m}">${m}</option>`).join('');
+
+      // Stats
+      const cnt = st => todosLosPedidos.filter(p => p.estado === st).length;
+      document.getElementById('statTotal').textContent     = todosLosPedidos.length;
+      document.getElementById('statPendiente').textContent = cnt('PENDIENTE');
+      document.getElementById('statFactPre').textContent   = cnt('FACTURADO PREORDER');
+      document.getElementById('statProduccion').textContent= cnt('PRODUCCIÓN');
+      document.getElementById('statListo').textContent     = cnt('LISTO');
+      document.getElementById('statSeparado').textContent  = cnt('SEPARADO');
+      document.getElementById('statPitti').textContent     = todosLosPedidos.filter(p=>p.origen==='P').length;
+      document.getElementById('statFaire').textContent     = todosLosPedidos.filter(p=>p.origen==='X').length;
+
+      document.getElementById('uploadZone').style.display  = 'none';
+      document.getElementById('fileCargado').style.display = 'flex';
+      document.getElementById('nombreArchivo').textContent = file.name;
+      document.getElementById('fileMeta').textContent      = `${todosLosPedidos.length} filas cargadas · hoja: ${wsName}`;
+      document.getElementById('statsBar').style.display    = 'flex';
+      document.getElementById('btnCorte').disabled         = false;
+      document.getElementById('errorBox').style.display    = 'none';
+
+      mostrarToast(`✅ ${todosLosPedidos.length} filas cargadas`);
+
+    } catch(err) {
+      mostrarError('Error al leer el archivo: ' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── APLICAR FILTROS ──
+function aplicarFiltros() {
+  const origen   = document.getElementById('filtroOrigen').value;
+  const tipo     = document.getElementById('filtroTipo').value;
+  const senia    = document.getElementById('filtroSenia').value;
+  const proveedor= document.getElementById('filtroProveedor').value;
+  const modelo   = document.getElementById('filtroModelo').value;
+  const desde    = document.getElementById('filtroFechaDesde').value;
+  const hasta    = document.getElementById('filtroFechaHasta').value;
+  const cliente  = document.getElementById('filtroCliente').value.trim().toUpperCase();
+
+  return todosLosPedidos.filter(p => {
+    // Estados: si hay selección, filtrar; si no, todos
+    if (estadosSeleccionados.size > 0 && !estadosSeleccionados.has(p.estado)) return false;
+    if (origen !== 'todos' && p.origen !== origen) return false;
+    if (tipo !== 'todos' && p.tipo !== tipo) return false;
+    if (senia === 'con-senia' && !p.seña) return false;
+    if (senia === 'sin-senia' &&  p.seña) return false;
+    if (proveedor !== 'todos' && p.proveedor !== proveedor) return false;
+    if (modelo !== 'todos' && p.articulo !== modelo) return false;
+    if (cliente && !p.cliente.toUpperCase().includes(cliente)) return false;
+    if (desde || hasta) {
+      if (!p.fecha) return true;
+      const fp = p.fecha;
+      if (desde && fp < new Date(desde)) return false;
+      if (hasta && fp > new Date(hasta + 'T23:59:59')) return false;
+    }
+    return true;
+  });
+}
+
+// ── AGRUPAR PEDIDOS (une filas por artículo+color, acumula talles) ──
+function agruparPedidos(pedidos, agrupacion) {
+  const grupos = {};
+
+  pedidos.forEach(p => {
+    let groupKey;
+    if (agrupacion === 'proveedor') groupKey = p.proveedor || 'SIN PROVEEDOR';
+    else if (agrupacion === 'modelo') groupKey = p.articulo;
+    else if (agrupacion === 'estado') groupKey = p.estado;
+    else groupKey = 'TODOS';
+
+    if (!grupos[groupKey]) grupos[groupKey] = {};
+
+    // Dentro del grupo, agrupar por artículo+color
+    const itemKey = `${p.articulo}||${p.color}`;
+    if (!grupos[groupKey][itemKey]) {
+      grupos[groupKey][itemKey] = {
+        articulo: p.articulo, color: p.color,
+        talles: {}, total: 0,
+        proveedores: new Set(), origenes: new Set(),
+        estados: new Set(), obsSet: new Set()
+      };
+    }
+
+    const item = grupos[groupKey][itemKey];
+    item.proveedores.add(p.proveedor || '—');
+    if (p.origen) item.origenes.add(p.origen);
+    item.estados.add(p.estado);
+    if (p.notas) item.obsSet.add(p.notas);
+
+    // Acumular cantidad en el talle
+    item.talles[p.talle] = (item.talles[p.talle] || 0) + p.cantidad;
+    item.total += p.cantidad;
+  });
+
+  return Object.entries(grupos).map(([nombre, items]) => ({
+    nombre,
+    items: Object.values(items).map(it => ({
+      ...it,
+      proveedor: it.proveedores.size > 1 ? 'MIXTO' : [...it.proveedores][0],
+      esFaire:   it.origenes.has('X') && it.origenes.size === 1,
+      estadosMix: [...it.estados].join(', '),
+      observaciones: [...it.obsSet].join(' / ') || ''
+    })).sort((a,b) => a.articulo.localeCompare(b.articulo) || a.color.localeCompare(b.color))
+  })).sort((a,b) => a.nombre.localeCompare(b.nombre));
+}
+
+// ── GENERAR CORTE ──
+function generarCorte() {
+  if (todosLosPedidos.length === 0) { mostrarError('Primero cargá el archivo.'); return; }
+  const filtrados = aplicarFiltros();
+  document.getElementById('errorBox').style.display = 'none';
+
+  if (filtrados.length === 0) {
+    mostrarError('No hay filas que coincidan con los filtros seleccionados.'); return;
+  }
+
+  const agrupacion = vistaActual === 'unificada' ? 'unificado'
+                   : vistaActual === 'proveedor'  ? 'proveedor'
+                   : vistaActual === 'modelo'     ? 'modelo'
+                   : 'estado';
+
+  const grupos = agruparPedidos(filtrados, agrupacion);
+  ultimoCorte = { grupos, totalFilas: filtrados.length };
+  renderResultado(grupos, filtrados.length);
+  mostrarToast(`✂ Corte generado — ${filtrados.length} filas · ${grupos.reduce((s,g)=>s+g.items.reduce((s2,i)=>s2+i.total,0),0)} pares`);
+}
+
+// ── BADGE CLASS ──
+function badgeClass(n) {
+  if (n === 'SEBA') return 'badge-seba';
+  if (n === 'LEAN') return 'badge-lean';
+  if (n === 'TODOS') return 'badge-dark';
+  // estados
+  if (n === 'PENDIENTE') return 'badge-sage';
+  if (n === 'FACTURADO PREORDER') return 'badge-sage';
+  return 'badge-sage';
+}
+
+function estadoBadgeClass(e) {
+  const m = {
+    'PENDIENTE': 'eb-pendiente',
+    'FACTURADO PREORDER': 'eb-fact-pre',
+    'PRODUCCIÓN': 'eb-produccion',
+    'LISTO': 'eb-listo',
+    'SEPARADO': 'eb-separado',
+    'ENTREGADO': 'eb-entregado',
+    'CANCELADO': 'eb-cancelado',
+  };
+  return m[e] || 'eb-pendiente';
+}
+
+// ── RENDER TABLA ──
+function renderTabla(items, id) {
+  const totales = {}; TALLES.forEach(t => totales[t] = 0);
+  let totGen = 0;
+
+  items.forEach(item => {
+    TALLES.forEach(t => { totales[t] += (item.talles[t]||0); });
+    totGen += item.total;
+  });
+
+  const rows = items.map(item => {
+    const celdas = TALLES.map(t => {
+      const v = item.talles[t] || 0;
+      return `<td class="${v > 0 ? 'td-n' : 'td-zero'}">${v > 0 ? v : '—'}</td>`;
+    }).join('');
+
+    const estadosBadges = item.estadosMix.split(', ').map(e =>
+      `<span class="estado-badge ${estadoBadgeClass(e)}">${e}</span>`
+    ).join(' ');
+
+    return `<tr>
+      <td class="tl">${item.articulo}</td>
+      <td class="tl2">${item.color}</td>
+      ${celdas}
+      <td><strong>${item.total}</strong></td>
+      <td style="font-size:0.67rem;color:var(--dust)">${item.proveedor||'—'}</td>
+      <td style="padding:4px 6px">${estadosBadges}</td>
+      <td class="tl2" style="font-size:0.65rem;color:var(--dust);max-width:140px;white-space:normal;line-height:1.4">${item.observaciones||''}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="tabla-wrap"><table id="${id}">
+    <thead><tr>
+      <th class="tl">ARTÍCULO</th>
+      <th class="tl">COLOR</th>
+      ${TALLES.map(t => `<th>${t}</th>`).join('')}
+      <th>TOTAL</th><th>PROV.</th><th class="tl">ESTADO</th><th class="tl">OBS.</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+    <tfoot><tr>
+      <td class="tl">TOTAL</td><td></td>
+      ${TALLES.map(t => `<td>${totales[t]>0?totales[t]:'—'}</td>`).join('')}
+      <td>${totGen}</td><td></td><td></td><td></td>
+    </tr></tfoot>
+  </table></div>`;
+}
+
+// ── RENDER RESULTADO ──
+function renderResultado(grupos, totalFilas) {
+  const hoy = new Date().toLocaleDateString('es-AR');
+  const res = document.getElementById('resultado');
+
+  const totalPares   = grupos.reduce((s,g) => s + g.items.reduce((s2,i)=>s2+i.total,0), 0);
+  const totalModelos = new Set(grupos.flatMap(g => g.items.map(i => i.articulo))).size;
+
+  // Texto filtros activos
+  const filtrosTexto = [];
+  if (estadosSeleccionados.size > 0) filtrosTexto.push([...estadosSeleccionados].join(', '));
+  const fmap = ['filtroOrigen','filtroTipo','filtroSenia','filtroProveedor','filtroModelo'];
+  fmap.forEach(id => {
+    const el = document.getElementById(id);
+    if (el.value !== 'todos') filtrosTexto.push(el.options[el.selectedIndex].text);
+  });
+  const desde = document.getElementById('filtroFechaDesde').value;
+  if (desde) filtrosTexto.push(`Desde ${desde}`);
+  const hasta = document.getElementById('filtroFechaHasta').value;
+  if (hasta) filtrosTexto.push(`Hasta ${hasta}`);
+  const cli = document.getElementById('filtroCliente').value.trim();
+  if (cli) filtrosTexto.push(`Cliente: ${cli}`);
+
+  let html = `
+  <div class="print-header">
+    <h2>PMK Shoes — Corte a Producción</h2>
+    <p>Corte del ${hoy} · ${totalFilas} filas · ${totalPares} pares · ${totalModelos} modelos${filtrosTexto.length ? ' · ' + filtrosTexto.join(' · ') : ''}</p>
+  </div>
+
+  <div class="resultado-header">
+    <div>
+      <div class="resultado-titulo">Corte generado</div>
+      <div class="resultado-meta">${hoy} · ${totalFilas} filas · ${totalPares} pares · ${totalModelos} modelos</div>
+    </div>
+  </div>
+
+  <div class="resumen-box">
+    Corte del <strong>${hoy}</strong> — <strong>${totalFilas} filas seleccionadas</strong> ·
+    <strong>${totalPares} pares en total</strong> · <strong>${totalModelos} modelos distintos</strong>
+    ${filtrosTexto.length ? `<br><span style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--dust)">Filtros: ${filtrosTexto.join(' · ')}</span>` : ''}
+  </div>`;
+
+  if (filtrosTexto.length) {
+    html += `<div class="filtros-info">
+      <span style="color:var(--dust)">Filtros activos:</span>
+      ${filtrosTexto.map(f => `<span class="filtro-tag">${f}</span>`).join('')}
+    </div>`;
+  }
+
+  grupos.forEach((grupo, gi) => {
+    const tid      = `t${gi}`;
+    const bc       = badgeClass(grupo.nombre);
+    const grupoTot = grupo.items.reduce((s,i) => s+i.total, 0);
+
+    html += `<div class="bloque" style="animation-delay:${gi*0.05}s">
+      <div class="bloque-top">
+        <div class="bloque-titulo">
+          <span class="prov-badge ${bc}">${grupo.nombre}</span>
+          <span class="bloque-sub">${grupo.items.length} artículos · ${grupoTot} pares</span>
+        </div>
+        <div class="bloque-actions">
+          <button class="btn-copy" onclick="copiarTabla('${tid}')">📋 Copiar tabla</button>
+        </div>
+      </div>
+      ${renderTabla(grupo.items, tid)}
+    </div>`;
+
+    if (gi < grupos.length - 1) html += '<hr class="divider">';
+  });
+
+  html += `<div class="resultado-footer">
+    <button class="btn-copy-b" onclick="copiarResumen()">📝 Copiar resumen</button>
+    <button class="btn-pdf" onclick="exportarPDF()">⬇ Exportar PDF</button>
+    <button class="btn-secondary" onclick="document.getElementById('resultado').style.display='none'">Cerrar</button>
+  </div>`;
+
+  res.innerHTML = html;
+  res.style.display = 'block';
+  res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── COPIAR TABLA ──
+function copiarTabla(id) {
+  const t = document.getElementById(id);
+  if (!t) return;
+  let txt = '';
+  for (const row of t.rows) {
+    txt += Array.from(row.cells).map(c => c.textContent.trim()).join('\t') + '\n';
+  }
+  navigator.clipboard.writeText(txt).then(() =>
+    mostrarToast('📋 Tabla copiada — pegala en Google Sheets')
+  );
+}
+
+// ── COPIAR RESUMEN ──
+function copiarResumen() {
+  if (!ultimoCorte) return;
+  const hoy      = new Date().toLocaleDateString('es-AR');
+  const totalPar = ultimoCorte.grupos.reduce((s,g)=>s+g.items.reduce((s2,i)=>s2+i.total,0),0);
+  let txt = `PMK Shoes — Corte a Producción ${hoy}\n`;
+  txt += `${ultimoCorte.totalFilas} filas · ${totalPar} pares\n\n`;
+  ultimoCorte.grupos.forEach(g => {
+    txt += `── ${g.nombre} ──\n`;
+    g.items.forEach(i => {
+      const det = TALLES.filter(t=>i.talles[t]>0).map(t=>`T${t}:${i.talles[t]}`).join(' ');
+      txt += `${i.articulo} ${i.color} → ${det} (Total: ${i.total})\n`;
+    });
+    txt += '\n';
+  });
+  navigator.clipboard.writeText(txt).then(() => mostrarToast('📝 Resumen copiado'));
+}
+
+function exportarPDF() { window.print(); }
+
+let toastTimer;
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function mostrarError(msg) {
+  const b = document.getElementById('errorBox');
+  b.textContent = '⚠ ' + msg;
+  b.style.display = 'block';
+}
+</script>
+</body>
+</html>
