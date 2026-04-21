@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMK Shoes — Cuenta Corriente</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --negro: #f7f3ef;
+    --crema: #1a1208;
+    --cuero: #8B6F47;
+    --cuero-claro: #7a5c35;
+    --rojo: #c0392b;
+    --verde: #1e8449;
+    --gris: #666;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--negro);
+    color: var(--crema);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    padding: 40px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--crema);
+  }
+
+  .logo span {
+    color: var(--cuero-claro);
+  }
+
+  .subtitle {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gris);
+    text-transform: uppercase;
+  }
+
+  /* LOGIN */
+  #login-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 100px);
+    padding: 40px 20px;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .login-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 300;
+    color: var(--crema);
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .login-desc {
+    font-size: 11px;
+    color: var(--gris);
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+  }
+
+  .field {
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--cuero-claro);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .field input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    padding: 12px 0;
+    color: var(--crema);
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  .field input:focus {
+    border-bottom-color: var(--cuero);
+  }
+
+  .field input::placeholder {
+    color: #bbb;
+  }
+
+  .btn-login {
+    width: 100%;
+    background: var(--cuero);
+    color: var(--crema);
+    border: none;
+    padding: 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s;
+  }
+
+  .btn-login:hover { background: var(--cuero-claro); color: var(--negro); }
+
+  .error-msg {
+    color: var(--rojo);
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-top: 16px;
+    display: none;
+    text-align: center;
+  }
+
+  /* DASHBOARD */
+  #dashboard {
+    display: none;
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .welcome {
+    margin-bottom: 40px;
+  }
+
+  .welcome-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 42px;
+    font-weight: 300;
+    color: var(--crema);
+    line-height: 1.1;
+  }
+
+  .welcome-sub {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gris);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* SALDO CARDS */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #ddd;
+    margin-bottom: 40px;
+  }
+
+  .card {
+    background: #f7f3ef;
+    padding: 28px 24px;
+  }
+
+  .card-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--gris);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .card-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 600;
+  }
+
+  .card-value.debe { color: var(--rojo); }
+  .card-value.haber { color: var(--verde); }
+  .card-value.saldo { color: var(--crema); }
+
+  /* TABLA */
+  .section-title {
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: var(--cuero-claro);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    border-bottom: 1px solid #ddd;
+  }
+
+  thead th {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--gris);
+    text-transform: uppercase;
+    text-align: left;
+    padding: 10px 0;
+    font-weight: 400;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #eee;
+    transition: background 0.2s;
+  }
+
+  tbody tr:hover { background: #ede8e2; }
+
+  tbody td {
+    padding: 14px 0;
+    font-size: 12px;
+    color: var(--crema);
+    vertical-align: middle;
+  }
+
+  .td-fecha { color: var(--gris); font-size: 11px; }
+  .td-tipo {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .td-tipo.pedido { color: var(--cuero-claro); }
+  .td-tipo.pago { color: var(--verde); }
+
+  .td-numero { color: var(--gris); font-size: 11px; }
+
+  .td-debe { color: var(--rojo); }
+  .td-haber { color: var(--verde); }
+
+  .td-saldo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .badge-saldo {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .badge-saldo.positivo {
+    background: rgba(192,57,43,0.1);
+    color: var(--rojo);
+    border: 1px solid rgba(192,57,43,0.3);
+  }
+
+  .badge-saldo.negativo {
+    background: rgba(39,174,96,0.1);
+    color: var(--verde);
+    border: 1px solid rgba(39,174,96,0.3);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 0;
+    color: var(--gris);
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  .btn-salir {
+    background: transparent;
+    border: 1px solid #ccc;
+    color: var(--gris);
+    padding: 8px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-salir:hover { border-color: var(--cuero); color: var(--cuero-claro); }
+
+  .loading {
+    text-align: center;
+    padding: 60px;
+    color: var(--gris);
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 24px 20px; }
+    #dashboard { padding: 24px 20px; }
+    .cards { grid-template-columns: 1fr; }
+    .welcome-name { font-size: 30px; }
+    thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PMK <span>Shoes</span></div>
+  <div style="text-align:right">
+    <div class="subtitle">Cuenta Corriente</div>
+    <button class="btn-salir" id="btn-salir" style="display:none; margin-top:8px" onclick="cerrarSesion()">Salir</button>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-title">Tu cuenta<br>corriente</div>
+    <div class="login-desc">Ingresá con tus datos</div>
+
+    <div class="field">
+      <label>Nombre</label>
+      <input type="text" id="input-nombre" placeholder="Como figura en tu pedido" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>PIN</label>
+      <input type="password" id="input-pin" placeholder="••••" maxlength="6">
+    </div>
+
+    <button class="btn-login" onclick="iniciarSesion()">Ingresar</button>
+    <div class="error-msg" id="error-msg">Cliente o PIN incorrecto</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="welcome">
+    <div class="welcome-name" id="nombre-display">—</div>
+    <div class="welcome-sub">Estado de cuenta actualizado</div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Total facturado</div>
+      <div class="card-value debe" id="total-debe">$0</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total pagado</div>
+      <div class="card-value haber" id="total-haber">$0</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Saldo pendiente</div>
+      <div class="card-value saldo" id="total-saldo">$0</div>
+    </div>
+  </div>
+
+  <div class="section-title">Movimientos</div>
+  <div id="tabla-container">
+    <div class="loading">Cargando movimientos...</div>
+  </div>
+</div>
+
+<script>
+  // ==========================================
+  // CONFIGURACIÓN — REEMPLAZAR CON TU URL
+  // ==========================================
+  const SHEET_ID = '16its3gc9bSbIwCZPV-MYrwY7FInlagDsTW-ZJIdNKWM';
+  const CLIENTES_GID = '97187020';    // GID de hoja CLIENTES
+  const MOVIMIENTOS_GID = '266690226'; // GID de hoja MOVIMIENTOS
+
+  const URL_CLIENTES = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${CLIENTES_GID}`;
+  const URL_MOVIMIENTOS = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${MOVIMIENTOS_GID}`;
+
+  let clienteActual = null;
+
+  // Parsear CSV
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+    return lines.slice(1).map(line => {
+      const vals = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|^(?=,)|(?<=,)$)/g) || [];
+      const obj = {};
+      headers.forEach((h, i) => {
+        obj[h] = (vals[i] || '').replace(/"/g,'').trim();
+      });
+      return obj;
+    });
+  }
+
+  function formatPeso(n) {
+    if (!n || isNaN(n)) return '$0';
+    return '$' + Number(n).toLocaleString('es-AR');
+  }
+
+  async function iniciarSesion() {
+    const nombre = document.getElementById('input-nombre').value.trim().toUpperCase();
+    const pin = document.getElementById('input-pin').value.trim();
+    const errorEl = document.getElementById('error-msg');
+    errorEl.style.display = 'none';
+
+    if (!nombre || !pin) {
+      errorEl.textContent = 'Completá nombre y PIN';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    try {
+      const res = await fetch(URL_CLIENTES + '&t=' + Date.now());
+      const text = await res.text();
+      const clientes = parseCSV(text);
+
+      const cliente = clientes.find(c =>
+        c.CLIENTE && c.CLIENTE.toUpperCase().includes(nombre) &&
+        c.PIN && c.PIN === pin &&
+        c.ACTIVO !== '0'
+      );
+
+      if (!cliente) {
+        errorEl.textContent = 'Cliente o PIN incorrecto';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      clienteActual = cliente;
+      mostrarDashboard(cliente);
+
+    } catch(e) {
+      errorEl.textContent = 'Error de conexión. Intentá de nuevo.';
+      errorEl.style.display = 'block';
+    }
+  }
+
+  async function mostrarDashboard(cliente) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('btn-salir').style.display = 'inline-block';
+    document.getElementById('nombre-display').textContent = cliente.CLIENTE;
+
+    try {
+      const res = await fetch(URL_MOVIMIENTOS + '&t=' + Date.now());
+      const text = await res.text();
+      const movimientos = parseCSV(text);
+
+      const misMov = movimientos.filter(m =>
+        m.CLIENTE && m.CLIENTE.toUpperCase() === cliente.CLIENTE.toUpperCase()
+      ).sort((a,b) => {
+        // ordenar por fecha
+        const fa = a.FECHA ? a.FECHA.split('/').reverse().join('') : '';
+        const fb = b.FECHA ? b.FECHA.split('/').reverse().join('') : '';
+        return fa.localeCompare(fb);
+      });
+
+      // Calcular totales
+      let totalDebe = 0, totalHaber = 0, saldoAcum = 0;
+      misMov.forEach(m => {
+        totalDebe += Number(m.DEBE || 0);
+        totalHaber += Number(m.HABER || 0);
+      });
+      const totalSaldo = totalDebe - totalHaber;
+
+      document.getElementById('total-debe').textContent = formatPeso(totalDebe);
+      document.getElementById('total-haber').textContent = formatPeso(totalHaber);
+      document.getElementById('total-saldo').textContent = formatPeso(totalSaldo);
+
+      // Tabla
+      let html = '';
+      if (misMov.length === 0) {
+        html = '<div class="empty-state">Sin movimientos registrados</div>';
+      } else {
+        html = `<table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>N° Orden</th>
+              <th>Debe</th>
+              <th>Haber</th>
+              <th style="text-align:right">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+        misMov.forEach(m => {
+          const debe = Number(m.DEBE || 0);
+          const haber = Number(m.HABER || 0);
+          saldoAcum += debe - haber;
+          const tipo = (m.TIPO || '').toUpperCase();
+          const esPago = tipo === 'PAGO';
+
+          html += `<tr>
+            <td class="td-fecha">${m.FECHA || '—'}</td>
+            <td class="td-tipo ${esPago ? 'pago' : 'pedido'}">${m.TIPO || '—'}</td>
+            <td class="td-numero">${m.NUMERO || '—'}</td>
+            <td class="td-debe">${debe > 0 ? formatPeso(debe) : '—'}</td>
+            <td class="td-haber">${haber > 0 ? formatPeso(haber) : '—'}</td>
+            <td class="td-saldo">
+              <span class="badge-saldo ${saldoAcum > 0 ? 'positivo' : 'negativo'}">
+                ${formatPeso(Math.abs(saldoAcum))}
+              </span>
+            </td>
+          </tr>`;
+        });
+
+        html += '</tbody></table>';
+      }
+
+      document.getElementById('tabla-container').innerHTML = html;
+
+    } catch(e) {
+      document.getElementById('tabla-container').innerHTML =
+        '<div class="empty-state">Error al cargar movimientos</div>';
+    }
+  }
+
+  function cerrarSesion() {
+    clienteActual = null;
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('btn-salir').style.display = 'none';
+    document.getElementById('input-nombre').value = '';
+    document.getElementById('input-pin').value = '';
+  }
+
+  // Enter para login
+  document.getElementById('input-pin').addEventListener('keypress', e => {
+    if (e.key === 'Enter') iniciarSesion();
+  });
+</script>
+
+</body>
+</html>
