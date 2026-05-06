@@ -101,6 +101,7 @@
     letter-spacing: 0.05em;
   }
 
+  /* Search box */
   .search-card {
     background: white;
     border: 1.5px solid var(--border);
@@ -160,6 +161,7 @@
   .btn-buscar:hover { background: var(--terracotta); }
   .btn-buscar:disabled { background: var(--sand); cursor: not-allowed; }
 
+  /* Loading */
   .loading {
     display: none;
     text-align: center;
@@ -219,6 +221,7 @@
     letter-spacing: 0.1em;
   }
 
+  /* ── ESTADÍSTICAS ── */
   .stats-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -251,6 +254,7 @@
     text-transform: uppercase;
   }
 
+  /* ── FILTROS ── */
   .filtros-row {
     display: flex;
     gap: 8px;
@@ -295,6 +299,7 @@
     color: var(--brown);
   }
 
+  /* Mensaje sin resultados para filtro */
   .filtro-empty {
     display: none;
     text-align: center;
@@ -305,6 +310,7 @@
     letter-spacing: 0.08em;
   }
 
+  /* ── CARDS ── */
   .pedido-card {
     background: white;
     border: 1.5px solid var(--border);
@@ -364,6 +370,7 @@
     gap: 8px;
   }
 
+  /* Estado badges */
   .estado-badge {
     font-family: 'DM Mono', monospace;
     font-size: 0.65rem;
@@ -402,6 +409,7 @@
   .tipo-STOCK     { background: #E8F0E8; color: var(--green); }
   .tipo-CURVA     { background: #E8E8F5; color: #4A4A8A; }
 
+  /* ── CONTADOR DÍAS HÁBILES ── */
   .contador-wrapper {
     border-top: 1px solid var(--light-sand);
     padding: 10px 22px 12px;
@@ -444,6 +452,7 @@
   .contador-texto .dias-restantes.completo { color: var(--green); }
   .contador-texto .dias-restantes.vencido  { color: #8B3020; }
 
+  /* Empty state */
   .empty-state {
     display: none;
     text-align: center;
@@ -522,14 +531,21 @@
   </div>
 
   <div class="resultado" id="resultado">
+
     <div class="resultado-header">
       <div class="resultado-nombre" id="resultadoNombre"></div>
       <div class="resultado-count" id="resultadoCount"></div>
     </div>
+
+    <!-- Estadísticas -->
     <div class="stats-row" id="statsRow"></div>
+
+    <!-- Filtros -->
     <div class="filtros-row" id="filtrosRow"></div>
+
     <div id="listaPedidos"></div>
     <div class="filtro-empty" id="filtroEmpty">No hay pedidos en este estado</div>
+
   </div>
 
 </div>
@@ -542,10 +558,11 @@ const GID = "1829079727";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
 const CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(SHEET_URL);
 
+// Estados activos por defecto (los que le importan al cliente)
 const ESTADOS_ACTIVOS = ['PENDIENTE', 'FACTURADO PREORDER', 'PRODUCCION', 'PRODUCCIÓN', 'SEPARADO'];
 const DIAS_HABILES_ESTIMADO = 15;
 
-let todosLosPedidos = [];
+let todosLosPedidos = []; // todos del cliente
 let filtroActual = 'activos';
 
 document.getElementById('inputNombre').addEventListener('keydown', e => {
@@ -574,6 +591,7 @@ function parseCSV(text) {
   return rows;
 }
 
+// Calcula días hábiles entre dos fechas (excluye sáb y dom)
 function diasHabilesEntre(fechaDesde, fechaHasta) {
   let count = 0;
   const cur = new Date(fechaDesde);
@@ -588,6 +606,7 @@ function diasHabilesEntre(fechaDesde, fechaHasta) {
   return count;
 }
 
+// Suma N días hábiles a una fecha
 function sumarDiasHabiles(fecha, n) {
   const d = new Date(fecha);
   let count = 0;
@@ -599,6 +618,7 @@ function sumarDiasHabiles(fecha, n) {
   return d;
 }
 
+// Parsea fecha en formato dd/mm/yyyy o yyyy-mm-dd
 function parseFecha(str) {
   if (!str) return null;
   str = str.trim();
@@ -628,3 +648,232 @@ async function buscarPedidos() {
     const res = await fetch(CSV_URL);
     if (!res.ok) throw new Error('No se pudo conectar con la planilla');
     const text = await res.text();
+    const rows = parseCSV(text);
+
+    const nombreLower = nombre.toLowerCase();
+    todosLosPedidos = rows.filter(r => {
+      const cliente = (r['CLIENTE'] || r['C'] || '').toLowerCase();
+      return cliente.includes(nombreLower) && cliente !== '';
+    });
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('btnBuscar').disabled = false;
+
+    if (todosLosPedidos.length === 0) {
+      document.getElementById('emptyState').style.display = 'block';
+      return;
+    }
+
+    renderTodo(nombre);
+
+  } catch(err) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('btnBuscar').disabled = false;
+    const box = document.getElementById('errorBox');
+    box.textContent = 'Error al cargar los pedidos. Intentá nuevamente en unos segundos.';
+    box.style.display = 'block';
+  }
+}
+
+function normalizarEstado(e) {
+  return (e || '').toUpperCase().trim()
+    .replace('PRODUCCIÓN', 'PRODUCCION')
+    .replace('ARTÍCULO', 'ARTICULO');
+}
+
+function filtrarPedidos(filtro) {
+  const norm = p => normalizarEstado(p['ESTADO'] || p['L'] || '');
+  switch(filtro) {
+    case 'activos':
+      return todosLosPedidos.filter(p => ESTADOS_ACTIVOS.map(e => e.replace('PRODUCCIÓN','PRODUCCION')).includes(norm(p)));
+    case 'entregados':
+      return todosLosPedidos.filter(p => norm(p) === 'ENTREGADO');
+    case 'cancelados':
+      return todosLosPedidos.filter(p => norm(p) === 'CANCELADO');
+    case 'todos':
+    default:
+      return todosLosPedidos;
+  }
+}
+
+function contarPorFiltro(filtro) {
+  return filtrarPedidos(filtro).length;
+}
+
+function renderTodo(nombre) {
+  const displayNombre = todosLosPedidos[0]['CLIENTE'] || nombre;
+  document.getElementById('resultadoNombre').textContent = displayNombre;
+
+  renderStats();
+  renderFiltros();
+  aplicarFiltro('activos');
+
+  document.getElementById('resultado').style.display = 'block';
+}
+
+function renderStats() {
+  // Artículos únicos (por artículo+color combinados entregados o activos)
+  const totalItems = todosLosPedidos.length;
+  const entregados = todosLosPedidos.filter(p => normalizarEstado(p['ESTADO']||p['L']||'') === 'ENTREGADO').length;
+  const enCurso = todosLosPedidos.filter(p => {
+    const e = normalizarEstado(p['ESTADO']||p['L']||'');
+    return ESTADOS_ACTIVOS.map(x=>x.replace('PRODUCCIÓN','PRODUCCION')).includes(e);
+  }).length;
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-number">${totalItems}</div>
+      <div class="stat-label">Total artículos</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">${enCurso}</div>
+      <div class="stat-label">En proceso</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">${entregados}</div>
+      <div class="stat-label">Entregados</div>
+    </div>
+  `;
+}
+
+function renderFiltros() {
+  const filtros = [
+    { key: 'activos',    label: 'Activos' },
+    { key: 'entregados', label: 'Entregados' },
+    { key: 'cancelados', label: 'Cancelados' },
+    { key: 'todos',      label: 'Todos' },
+  ];
+
+  document.getElementById('filtrosRow').innerHTML = filtros.map(f => {
+    const count = contarPorFiltro(f.key);
+    return `
+      <button class="filtro-btn${f.key === filtroActual ? ' active' : ''}" 
+              onclick="aplicarFiltro('${f.key}')">
+        ${f.label}
+        <span class="filtro-count">${count}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function aplicarFiltro(filtro) {
+  filtroActual = filtro;
+
+  // Actualizar botones activos
+  document.querySelectorAll('.filtro-btn').forEach(btn => btn.classList.remove('active'));
+  const btns = document.querySelectorAll('.filtro-btn');
+  const filtros = ['activos','entregados','cancelados','todos'];
+  const idx = filtros.indexOf(filtro);
+  if (btns[idx]) btns[idx].classList.add('active');
+
+  const pedidos = filtrarPedidos(filtro);
+  const lista = document.getElementById('listaPedidos');
+  const filtroEmpty = document.getElementById('filtroEmpty');
+
+  document.getElementById('resultadoCount').textContent =
+    `${pedidos.length} pedido${pedidos.length !== 1 ? 's' : ''}`;
+
+  lista.innerHTML = '';
+
+  if (pedidos.length === 0) {
+    filtroEmpty.style.display = 'block';
+    return;
+  }
+
+  filtroEmpty.style.display = 'none';
+
+  pedidos.forEach((p, i) => {
+    const articulo  = p['ARTÍCULO'] || p['ARTICULO'] || p['E'] || '—';
+    const color     = p['COLOR']    || p['F'] || '—';
+    const talle     = p['TALLE']    || p['G'] || '—';
+    const fechaStr  = p['FECHA']    || p['A'] || '';
+    const estado    = (p['ESTADO']  || p['L'] || '').trim();
+    const tipo      = p['TIPO']     || p['I'] || '';
+    const factura   = p['FACTURA']  || p['Q'] || '';
+    const cantidad  = p['CANTIDAD'] || p['H'] || '1';
+
+    const estadoNorm = normalizarEstado(estado);
+    const estadoClass = 'estado-' + estado.toUpperCase().replace(/\s+/g,'-').replace('Ó','O').replace('Ú','U');
+    const tipoClass   = 'tipo-' + tipo.replace(/\s+/g,'-');
+
+    // ¿Es un estado "en proceso" que debe mostrar contador?
+    const esEnProceso = ['FACTURADO PREORDER','PRODUCCION','PRODUCCIÓN','PENDIENTE','SEPARADO']
+      .map(e=>e.replace('PRODUCCIÓN','PRODUCCION'))
+      .includes(estadoNorm);
+
+    let contadorHTML = '';
+    if (esEnProceso && fechaStr) {
+      const fechaPedido = parseFecha(fechaStr);
+      if (fechaPedido) {
+        const hoy = new Date();
+        hoy.setHours(0,0,0,0);
+        const fechaEstimada = sumarDiasHabiles(fechaPedido, DIAS_HABILES_ESTIMADO);
+        const diasTranscurridos = diasHabilesEntre(fechaPedido, hoy);
+        const diasRestantes = DIAS_HABILES_ESTIMADO - diasTranscurridos;
+        const pct = Math.min(100, Math.max(0, (diasTranscurridos / DIAS_HABILES_ESTIMADO) * 100));
+
+        let barClass = '';
+        let textoRestante = '';
+        let labelClass = '';
+
+        if (diasRestantes > 0) {
+          barClass = '';
+          textoRestante = `Faltan ${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} hábil${diasRestantes !== 1 ? 'es' : ''}`;
+          labelClass = '';
+        } else if (diasRestantes === 0) {
+          barClass = 'completo';
+          textoRestante = 'Entrega estimada: hoy';
+          labelClass = 'completo';
+        } else {
+          barClass = 'vencido';
+          textoRestante = `En preparación final`;
+          labelClass = 'vencido';
+        }
+
+        // Formatear fecha estimada
+        const opciones = { day: 'numeric', month: 'long' };
+        const fechaEst = fechaEstimada.toLocaleDateString('es-AR', opciones);
+
+        contadorHTML = `
+          <div class="contador-wrapper">
+            <div class="contador-bar-outer">
+              <div class="contador-bar-inner ${barClass}" style="width:${pct}%"></div>
+            </div>
+            <div class="contador-texto">
+              <span>Pedido el ${fechaStr} · Entrega est. ~${fechaEst}</span>
+              <span class="dias-restantes ${labelClass}">${textoRestante}</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    const card = document.createElement('div');
+    card.className = 'pedido-card';
+    card.style.animationDelay = `${i * 0.05}s`;
+
+    card.innerHTML = `
+      <div class="pedido-main">
+        <div class="pedido-info">
+          <div class="pedido-articulo">${articulo} <span style="color:var(--brown);font-weight:300">${color}</span></div>
+          <div class="pedido-detalle">
+            <span class="detalle-chip">Talle <strong>${talle}</strong></span>
+            ${parseInt(cantidad) > 1 ? `<span class="detalle-chip">Cantidad <strong>${cantidad}</strong></span>` : ''}
+            ${tipo ? `<span class="tipo-tag ${tipoClass}">${tipo}</span>` : ''}
+          </div>
+        </div>
+        <div class="pedido-meta">
+          <span class="estado-badge ${estadoClass}">${estado || 'Sin estado'}</span>
+          ${factura ? `<span class="pedido-factura">NP #${factura}</span>` : ''}
+        </div>
+      </div>
+      ${contadorHTML}
+    `;
+
+    lista.appendChild(card);
+  });
+}
+</script>
+
+</body>
+</html>
