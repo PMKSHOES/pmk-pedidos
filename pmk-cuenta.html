@@ -511,13 +511,17 @@ async function guardarCargo() {
 }
 
 async function escribirMovimiento(fecha, cliente, tipo, numero, debe, haber, obs) {
-  const res = await fetch(APPS_SCRIPT_URL, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ sheetId: SHEET_ID, sheet: 'MOVIMIENTOS', row: [fecha, '', cliente, tipo, numero, debe, haber, obs] })
+  const params = new URLSearchParams({
+    action: 'write',
+    sheetId: SHEET_ID,
+    sheet: 'MOVIMIENTOS',
+    row: JSON.stringify([fecha, '', cliente, tipo, numero, debe, haber, obs])
   });
-  if (!res.ok) throw new Error('fetch_error');
+  const res = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || 'error');
 }
+
 
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
