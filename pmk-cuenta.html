@@ -20,415 +20,100 @@
     --shadow: 0 2px 12px rgba(26,22,18,0.08);
   }
   * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100vh;
-  }
-
-  /* ── LOGIN ── */
-  #login-screen {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    background: var(--bg);
-  }
-  .login-box {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 48px 40px;
-    width: 100%;
-    max-width: 420px;
-    box-shadow: var(--shadow);
-  }
-  .login-logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 28px;
-    color: var(--accent);
-    letter-spacing: -0.5px;
-    margin-bottom: 4px;
-  }
-  .login-sub {
-    font-size: 13px;
-    color: var(--ink2);
-    margin-bottom: 36px;
-  }
-  .field-group { margin-bottom: 16px; }
-  .field-group label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink2);
-    margin-bottom: 6px;
-  }
-  .field-group input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    background: var(--bg);
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .field-group input:focus { border-color: var(--accent); }
-  .btn-primary {
-    width: 100%;
-    padding: 13px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: background 0.2s;
-  }
-  .btn-primary:hover { background: var(--accent2); }
-  .login-error {
-    color: var(--red);
-    font-size: 13px;
-    margin-top: 12px;
-    display: none;
-    text-align: center;
-  }
-  .login-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 28px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .login-tab {
-    flex: 1;
-    padding: 10px;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    background: var(--bg);
-    color: var(--ink2);
-    transition: all 0.2s;
-    border: none;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .login-tab.active { background: var(--accent); color: white; }
-
-  /* ── APP SHELL ── */
-  #app { display: none; min-height: 100vh; }
-  .topbar {
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    padding: 0 24px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-  }
-  .topbar-brand {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    color: var(--accent);
-  }
-  .topbar-right { display: flex; align-items: center; gap: 16px; }
-  .topbar-user { font-size: 13px; color: var(--ink2); }
-  .btn-logout {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--ink2);
-    background: none;
-    border: 1.5px solid var(--border);
-    border-radius: 6px;
-    padding: 6px 12px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.2s;
-  }
-  .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* ── MAIN ── */
-  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
-
-  /* ── SUMMARY CARDS ── */
-  .summary-cards {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-  .summary-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 24px;
-  }
-  .summary-card .label {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink2);
-    margin-bottom: 8px;
-  }
-  .summary-card .value {
-    font-family: 'DM Mono', monospace;
-    font-size: 24px;
-    font-weight: 500;
-    color: var(--ink);
-  }
-  .summary-card.saldo .value { color: var(--accent); }
-  .summary-card.pagado .value { color: var(--green); }
-
-  /* ── SECTION HEADER ── */
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .section-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    color: var(--ink);
-  }
-
-  /* ── TABLE ── */
-  .table-wrap {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 32px;
-  }
-  table { width: 100%; border-collapse: collapse; }
-  thead { background: var(--bg2); }
-  th {
-    padding: 12px 16px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink2);
-  }
-  td {
-    padding: 14px 16px;
-    font-size: 14px;
-    border-top: 1px solid var(--border);
-    vertical-align: middle;
-  }
-  tr:hover td { background: var(--bg); }
-  .mono { font-family: 'DM Mono', monospace; font-size: 13px; }
-  .badge {
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-  }
-  .badge-pedido { background: #FEF3C7; color: #92400E; }
-  .badge-recibo { background: #D1FAE5; color: #065F46; }
-  .badge-cargo { background: #FEE2E2; color: #991B1B; }
-  .amount-debe { color: var(--red); font-family: 'DM Mono', monospace; }
-  .amount-haber { color: var(--green); font-family: 'DM Mono', monospace; }
-  .saldo-acum { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; }
-
-  /* ── ADMIN PANELS ── */
-  .admin-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 24px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    width: fit-content;
-  }
-  .admin-tab {
-    padding: 10px 20px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    background: var(--bg);
-    color: var(--ink2);
-    border: none;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.2s;
-  }
-  .admin-tab.active { background: var(--accent); color: white; }
-
-  .client-selector {
-    display: flex;
-    gap: 12px;
-    margin-bottom: 24px;
-    align-items: center;
-  }
-  .client-selector select {
-    flex: 1;
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    background: var(--card);
-    color: var(--ink);
-    outline: none;
-    cursor: pointer;
-  }
-  .client-selector select:focus { border-color: var(--accent); }
-
-  .form-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
-  }
-  .form-card h3 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 17px;
-    margin-bottom: 20px;
-    color: var(--ink);
-  }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-  .form-row.single { grid-template-columns: 1fr; }
-  .form-field label {
-    display: block;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink2);
-    margin-bottom: 6px;
-  }
-  .form-field input, .form-field select {
-    width: 100%;
-    padding: 11px 14px;
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    background: var(--bg);
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .form-field input:focus, .form-field select:focus { border-color: var(--accent); }
-  .btn-submit {
-    padding: 11px 24px;
-    background: var(--accent);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .btn-submit:hover { background: var(--accent2); }
-  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .success-msg {
-    color: var(--green);
-    font-size: 13px;
-    font-weight: 500;
-    margin-top: 12px;
-    display: none;
-  }
-  .error-msg {
-    color: var(--red);
-    font-size: 13px;
-    margin-top: 12px;
-    display: none;
-  }
-
-  /* ── CLIENTES LIST (admin) ── */
-  .client-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-  .client-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .client-card:hover { border-color: var(--accent); box-shadow: var(--shadow); }
-  .client-card .name {
-    font-weight: 600;
-    font-size: 15px;
-    margin-bottom: 4px;
-  }
-  .client-card .saldo-label { font-size: 12px; color: var(--ink2); margin-bottom: 2px; }
-  .client-card .saldo-val {
-    font-family: 'DM Mono', monospace;
-    font-size: 18px;
-    font-weight: 500;
-    color: var(--accent);
-  }
-
-  /* ── LOADING ── */
-  .loading {
-    text-align: center;
-    padding: 48px;
-    color: var(--ink2);
-    font-size: 14px;
-  }
-  .spinner {
-    width: 24px; height: 24px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 12px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .empty { text-align: center; padding: 48px; color: var(--ink2); font-size: 14px; }
-
-  @media (max-width: 640px) {
-    .summary-cards { grid-template-columns: 1fr; }
-    .form-row { grid-template-columns: 1fr; }
-    .topbar { padding: 0 16px; }
-    .main { padding: 20px 16px; }
-    .login-box { padding: 32px 24px; }
-    th:nth-child(4), td:nth-child(4),
-    th:nth-child(5), td:nth-child(5) { display: none; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
+  #login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .login-box { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:48px 40px; width:100%; max-width:420px; box-shadow:var(--shadow); }
+  .login-logo { font-family:'DM Serif Display',serif; font-size:28px; color:var(--accent); letter-spacing:-0.5px; margin-bottom:4px; }
+  .login-sub { font-size:13px; color:var(--ink2); margin-bottom:36px; }
+  .field-group { margin-bottom:16px; }
+  .field-group label { display:block; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink2); margin-bottom:6px; }
+  .field-group input { width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:15px; background:var(--bg); color:var(--ink); outline:none; transition:border-color .2s; }
+  .field-group input:focus { border-color:var(--accent); }
+  .btn-primary { width:100%; padding:13px; background:var(--accent); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; margin-top:8px; transition:background .2s; }
+  .btn-primary:hover { background:var(--accent2); }
+  .login-error { color:var(--red); font-size:13px; margin-top:12px; display:none; text-align:center; }
+  .login-tabs { display:flex; margin-bottom:28px; border:1.5px solid var(--border); border-radius:8px; overflow:hidden; }
+  .login-tab { flex:1; padding:10px; text-align:center; font-size:13px; font-weight:500; cursor:pointer; background:var(--bg); color:var(--ink2); border:none; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .login-tab.active { background:var(--accent); color:white; }
+  #app { display:none; min-height:100vh; }
+  .topbar { background:var(--card); border-bottom:1px solid var(--border); padding:0 24px; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
+  .topbar-brand { font-family:'DM Serif Display',serif; font-size:20px; color:var(--accent); }
+  .topbar-right { display:flex; align-items:center; gap:16px; }
+  .topbar-user { font-size:13px; color:var(--ink2); }
+  .btn-logout { font-size:12px; font-weight:600; color:var(--ink2); background:none; border:1.5px solid var(--border); border-radius:6px; padding:6px 12px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .btn-logout:hover { border-color:var(--accent); color:var(--accent); }
+  .main { max-width:960px; margin:0 auto; padding:32px 24px; }
+  .summary-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:32px; }
+  .summary-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px 24px; }
+  .summary-card .label { font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink2); margin-bottom:8px; }
+  .summary-card .value { font-family:'DM Mono',monospace; font-size:24px; font-weight:500; color:var(--ink); }
+  .summary-card.saldo .value { color:var(--accent); }
+  .summary-card.pagado .value { color:var(--green); }
+  .section-title { font-family:'DM Serif Display',serif; font-size:20px; color:var(--ink); margin-bottom:16px; }
+  .table-wrap { background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:32px; }
+  table { width:100%; border-collapse:collapse; }
+  thead { background:var(--bg2); }
+  th { padding:12px 16px; text-align:left; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink2); }
+  td { padding:14px 16px; font-size:14px; border-top:1px solid var(--border); vertical-align:middle; }
+  tr:hover td { background:var(--bg); }
+  .mono { font-family:'DM Mono',monospace; font-size:13px; }
+  .badge { display:inline-block; padding:3px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+  .badge-pedido { background:#FEF3C7; color:#92400E; }
+  .badge-recibo { background:#D1FAE5; color:#065F46; }
+  .badge-cargo { background:#FEE2E2; color:#991B1B; }
+  .amount-debe { color:var(--red); font-family:'DM Mono',monospace; }
+  .amount-haber { color:var(--green); font-family:'DM Mono',monospace; }
+  .saldo-acum { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; }
+  .admin-tabs { display:flex; margin-bottom:24px; border:1.5px solid var(--border); border-radius:8px; overflow:hidden; width:fit-content; }
+  .admin-tab { padding:10px 20px; font-size:13px; font-weight:500; cursor:pointer; background:var(--bg); color:var(--ink2); border:none; font-family:'DM Sans',sans-serif; transition:all .2s; }
+  .admin-tab.active { background:var(--accent); color:white; }
+  .client-selector { margin-bottom:24px; }
+  .client-selector select { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; background:var(--card); color:var(--ink); outline:none; cursor:pointer; }
+  .client-selector select:focus { border-color:var(--accent); }
+  .form-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:24px; }
+  .form-card h3 { font-family:'DM Serif Display',serif; font-size:17px; margin-bottom:20px; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .form-row.single { grid-template-columns:1fr; }
+  .form-field label { display:block; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink2); margin-bottom:6px; }
+  .form-field input, .form-field select { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; background:var(--bg); color:var(--ink); outline:none; transition:border-color .2s; }
+  .form-field input:focus, .form-field select:focus { border-color:var(--accent); }
+  .btn-submit { padding:11px 24px; background:var(--accent); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition:background .2s; }
+  .btn-submit:hover { background:var(--accent2); }
+  .btn-submit:disabled { opacity:.5; cursor:not-allowed; }
+  .success-msg { color:var(--green); font-size:13px; font-weight:500; margin-top:12px; display:none; }
+  .error-msg { color:var(--red); font-size:13px; margin-top:12px; display:none; }
+  .client-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; margin-bottom:32px; }
+  .client-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; cursor:pointer; transition:all .2s; }
+  .client-card:hover { border-color:var(--accent); box-shadow:var(--shadow); }
+  .client-card .name { font-weight:600; font-size:15px; margin-bottom:4px; }
+  .client-card .saldo-label { font-size:12px; color:var(--ink2); margin-bottom:2px; }
+  .client-card .saldo-val { font-family:'DM Mono',monospace; font-size:18px; font-weight:500; color:var(--accent); }
+  .loading { text-align:center; padding:48px; color:var(--ink2); font-size:14px; }
+  .spinner { width:24px; height:24px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 12px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .empty { text-align:center; padding:48px; color:var(--ink2); font-size:14px; }
+  @media (max-width:640px) {
+    .summary-cards { grid-template-columns:1fr; }
+    .form-row { grid-template-columns:1fr; }
+    .topbar { padding:0 16px; }
+    .main { padding:20px 16px; }
+    .login-box { padding:32px 24px; }
+    .admin-tabs { flex-wrap:wrap; width:100%; }
+    .admin-tab { flex:1; min-width:100px; text-align:center; font-size:12px; padding:8px 10px; }
+    th:nth-child(5), td:nth-child(5) { display:none; }
   }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">PMK Shoes</div>
     <div class="login-sub">Cuenta Corriente</div>
-
     <div class="login-tabs">
       <button class="login-tab active" onclick="setLoginMode('cliente')">Cliente</button>
       <button class="login-tab" onclick="setLoginMode('admin')">Admin</button>
     </div>
-
     <div id="login-cliente">
       <div class="field-group">
         <label>Tu nombre</label>
@@ -440,7 +125,6 @@
       </div>
       <button class="btn-primary" onclick="loginCliente()">Ingresar</button>
     </div>
-
     <div id="login-admin" style="display:none">
       <div class="field-group">
         <label>Contraseña</label>
@@ -448,12 +132,10 @@
       </div>
       <button class="btn-primary" onclick="loginAdmin()">Ingresar</button>
     </div>
-
     <div class="login-error" id="login-error">Usuario o PIN incorrecto.</div>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <div class="topbar">
     <div class="topbar-brand">PMK Shoes</div>
@@ -463,9 +145,8 @@
     </div>
   </div>
 
-  <!-- VISTA CLIENTE -->
   <div id="view-cliente" class="main" style="display:none">
-    <div class="summary-cards" id="client-summary">
+    <div class="summary-cards">
       <div class="summary-card">
         <div class="label">Total facturado</div>
         <div class="value" id="sum-debe">—</div>
@@ -479,57 +160,37 @@
         <div class="value" id="sum-saldo">—</div>
       </div>
     </div>
-
-    <div class="section-header">
-      <div class="section-title">Movimientos</div>
-    </div>
-
+    <div class="section-title">Movimientos</div>
     <div class="table-wrap">
-      <div class="loading" id="client-loading">
-        <div class="spinner"></div>Cargando movimientos...
-      </div>
+      <div class="loading" id="client-loading"><div class="spinner"></div>Cargando movimientos...</div>
       <table id="client-table" style="display:none">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Concepto</th>
-            <th>N° Doc</th>
-            <th>Debe</th>
-            <th>Haber</th>
-            <th>Saldo</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Fecha</th><th>Concepto</th><th>N° Doc</th><th>Debe</th><th>Haber</th><th>Saldo</th></tr></thead>
         <tbody id="client-tbody"></tbody>
       </table>
       <div class="empty" id="client-empty" style="display:none">Sin movimientos registrados.</div>
     </div>
   </div>
 
-  <!-- VISTA ADMIN -->
   <div id="view-admin" class="main" style="display:none">
     <div class="admin-tabs">
-      <button class="admin-tab active" onclick="adminTab('resumen')">Resumen clientes</button>
-      <button class="admin-tab" onclick="adminTab('recibo')">Cargar recibo</button>
-      <button class="admin-tab" onclick="adminTab('cargo')">Cargar cargo</button>
-      <button class="admin-tab" onclick="adminTab('historial')">Ver cuenta</button>
+      <button class="admin-tab active" onclick="adminTab('resumen',this)">Resumen clientes</button>
+      <button class="admin-tab" onclick="adminTab('recibo',this)">Cargar recibo</button>
+      <button class="admin-tab" onclick="adminTab('cargo',this)">Cargar cargo</button>
+      <button class="admin-tab" onclick="adminTab('historial',this)">Ver cuenta</button>
     </div>
 
-    <!-- RESUMEN CLIENTES -->
     <div id="admin-resumen">
-      <div class="loading" id="admin-loading">
-        <div class="spinner"></div>Cargando clientes...
-      </div>
+      <div class="loading" id="admin-loading"><div class="spinner"></div>Cargando clientes...</div>
       <div class="client-cards" id="admin-client-cards" style="display:none"></div>
     </div>
 
-    <!-- CARGAR RECIBO -->
     <div id="admin-recibo" style="display:none">
       <div class="form-card">
         <h3>Nuevo recibo de pago</h3>
         <div class="form-row">
           <div class="form-field">
             <label>Cliente</label>
-            <select id="recibo-cliente"></select>
+            <select id="recibo-cliente"><option value="">— Seleccioná —</option></select>
           </div>
           <div class="form-field">
             <label>Importe ($)</label>
@@ -544,18 +205,17 @@
         </div>
         <button class="btn-submit" onclick="guardarRecibo()" id="btn-recibo">Registrar recibo</button>
         <div class="success-msg" id="recibo-ok">✓ Recibo registrado correctamente.</div>
-        <div class="error-msg" id="recibo-err">Error al registrar. Intentá de nuevo.</div>
+        <div class="error-msg" id="recibo-err"></div>
       </div>
     </div>
 
-    <!-- CARGAR CARGO EXTRA -->
     <div id="admin-cargo" style="display:none">
       <div class="form-card">
         <h3>Cargo extra (envío, ajuste, etc.)</h3>
         <div class="form-row">
           <div class="form-field">
             <label>Cliente</label>
-            <select id="cargo-cliente"></select>
+            <select id="cargo-cliente"><option value="">— Seleccioná —</option></select>
           </div>
           <div class="form-field">
             <label>Importe ($)</label>
@@ -570,18 +230,16 @@
         </div>
         <button class="btn-submit" onclick="guardarCargo()" id="btn-cargo">Registrar cargo</button>
         <div class="success-msg" id="cargo-ok">✓ Cargo registrado correctamente.</div>
-        <div class="error-msg" id="cargo-err">Error al registrar. Intentá de nuevo.</div>
+        <div class="error-msg" id="cargo-err"></div>
       </div>
     </div>
 
-    <!-- VER CUENTA DE UN CLIENTE -->
     <div id="admin-historial" style="display:none">
       <div class="client-selector">
         <select id="historial-cliente" onchange="cargarHistorial()">
           <option value="">— Seleccioná un cliente —</option>
         </select>
       </div>
-
       <div class="summary-cards" id="admin-summary" style="display:none">
         <div class="summary-card">
           <div class="label">Total facturado</div>
@@ -596,19 +254,9 @@
           <div class="value" id="admin-sum-saldo">—</div>
         </div>
       </div>
-
       <div class="table-wrap" id="admin-table-wrap" style="display:none">
         <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Concepto</th>
-              <th>N° Doc</th>
-              <th>Debe</th>
-              <th>Haber</th>
-              <th>Saldo acum.</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Fecha</th><th>Concepto</th><th>N° Doc</th><th>Debe</th><th>Haber</th><th>Saldo acum.</th></tr></thead>
           <tbody id="admin-tbody"></tbody>
         </table>
       </div>
@@ -617,28 +265,21 @@
 </div>
 
 <script>
-// ── CONFIG ──
 const SHEET_ID = '16its3gc9bSbIwCZPV-MYrwY7FInlagDsTW-ZJIdNKWM';
 const ADMIN_HASH = 'c6719937a424173d4a1311b70939f507be1a5eacc78183e1d9a30938e1ea611d';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSBP5-BGCizwyY5bNcQfJBguQ9dhZYNmbtd5NluoZcD6SqtSQ8siK2GNR_LLcElmTt/exec';
 
-let currentUser = null; // { tipo: 'cliente'|'admin', nombre, clienteId }
-let allClientes = [];
-let allMovimientos = [];
-
-// ── UTILS ──
 const $ = id => document.getElementById(id);
 const fmt = n => '$' + Number(n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0});
-const today = () => {
-  const d = new Date();
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
-};
+const today = () => { const d = new Date(); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; };
+
+let currentUser = null;
 
 async function sha256(str) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-// ── LOGIN MODE ──
 function setLoginMode(mode) {
   document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
   event.target.classList.add('active');
@@ -647,69 +288,59 @@ function setLoginMode(mode) {
   $('login-error').style.display = 'none';
 }
 
-// ── FETCH SHEETS ──
 async function fetchSheet(range) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&range=${encodeURIComponent(range)}&headers=1`;
   const res = await fetch(url);
   const text = await res.text();
   const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
   const cols = json.table.cols.map(c => c.label);
-  const rows = (json.table.rows || []).map(r => {
+  return (json.table.rows || []).map(r => {
     const obj = {};
     r.c.forEach((cell, i) => { obj[cols[i]] = cell ? cell.v : ''; });
     return obj;
   });
-  return rows;
 }
 
-// ── APPEND ROW via IFTTT-free public form workaround ──
-// We use the Google Sheets API through a simple proxy approach
-// Since we can't use OAuth here, we'll use a Google Apps Script Web App
-// The URL below should be your deployed Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPLACEHOLDER/exec';
-
-async function appendRow(sheet, values) {
-  // Fallback: build a Google Form URL or use Apps Script
-  // For now we'll use the gviz approach to read and show error for write
-  throw new Error('APPS_SCRIPT_NOT_CONFIGURED');
+async function getMovimientos() {
+  const movs = await fetchSheet('MOVIMIENTOS!A:H');
+  const validos = movs.filter(m => m['CLIENTE'] && m['CLIENTE'].toString().trim() !== '');
+  const unicos = [...new Set(validos.map(m => m['CLIENTE'].toString().trim()))].sort();
+  return { movs: validos, clientes: unicos };
 }
 
-// ── LOGIN CLIENTE ──
 async function loginCliente() {
   const nombre = $('login-nombre').value.trim().toUpperCase();
   const pin = $('login-pin').value.trim();
   if (!nombre || !pin) return;
-
+  $('login-error').style.display = 'none';
   try {
     const clientes = await fetchSheet('CLIENTES!A:F');
     const cliente = clientes.find(c =>
       c['CLIENTE'] && c['CLIENTE'].toString().toUpperCase() === nombre &&
-      c['PIN'] && c['PIN'].toString() === pin &&
-      c['ACTIVO'] !== false && c['ACTIVO'] !== 'false' && c['ACTIVO'] !== 0
+      c['PIN'] && c['PIN'].toString() === pin
     );
-
     if (!cliente) {
+      $('login-error').textContent = 'Usuario o PIN incorrecto.';
       $('login-error').style.display = 'block';
       return;
     }
-
-    currentUser = { tipo: 'cliente', nombre: cliente['CLIENTE'], clienteId: cliente['CLIENTE_ID'] || cliente['CLIENTE'] };
-    allClientes = clientes;
+    const { movs } = await getMovimientos();
+    const misMovs = movs.filter(m => m['CLIENTE'].toString().toUpperCase() === nombre);
+    currentUser = { tipo: 'cliente', nombre: cliente['CLIENTE'] };
     showApp('cliente');
-    cargarMovimientosCliente(currentUser.nombre);
+    renderMovimientosCliente(misMovs);
   } catch(e) {
     $('login-error').textContent = 'Error de conexión. Intentá de nuevo.';
     $('login-error').style.display = 'block';
   }
 }
 
-// ── LOGIN ADMIN ──
 async function loginAdmin() {
   const pass = $('login-admin-pass').value;
   const hash = await sha256(pass);
   if (hash !== ADMIN_HASH) {
-    $('login-error').style.display = 'block';
     $('login-error').textContent = 'Contraseña incorrecta.';
+    $('login-error').style.display = 'block';
     return;
   }
   currentUser = { tipo: 'admin', nombre: 'Admin PMK' };
@@ -717,7 +348,6 @@ async function loginAdmin() {
   cargarAdmin();
 }
 
-// ── SHOW APP ──
 function showApp(tipo) {
   $('login-screen').style.display = 'none';
   $('app').style.display = 'block';
@@ -730,41 +360,8 @@ function logout() {
   currentUser = null;
   $('login-screen').style.display = 'flex';
   $('app').style.display = 'none';
-  $('login-nombre').value = '';
-  $('login-pin').value = '';
-  $('login-admin-pass').value = '';
+  $('login-nombre').value = ''; $('login-pin').value = ''; $('login-admin-pass').value = '';
   $('login-error').style.display = 'none';
-}
-
-// ── MOVIMIENTOS CLIENTE ──
-async function cargarMovimientosCliente(nombreCliente) {
-  $('client-loading').style.display = 'block';
-  $('client-table').style.display = 'none';
-  $('client-empty').style.display = 'none';
-
-  try {
-    const movs = await fetchSheet('MOVIMIENTOS!A:H');
-    const clienteMovs = movs.filter(m =>
-      m['CLIENTE'] && m['CLIENTE'].toString().toUpperCase() === nombreCliente.toUpperCase()
-    ).sort((a, b) => {
-      // sort by date ascending
-      return parseFecha(a['FECHA']) - parseFecha(b['FECHA']);
-    });
-
-    $('client-loading').style.display = 'none';
-
-    if (clienteMovs.length === 0) {
-      $('client-empty').style.display = 'block';
-      actualizarSummary([], 'sum-debe', 'sum-haber', 'sum-saldo');
-      return;
-    }
-
-    renderMovimientos(clienteMovs, 'client-tbody');
-    $('client-table').style.display = 'table';
-    actualizarSummary(clienteMovs, 'sum-debe', 'sum-haber', 'sum-saldo');
-  } catch(e) {
-    $('client-loading').innerHTML = '<p style="color:var(--red)">Error al cargar movimientos.</p>';
-  }
 }
 
 function parseFecha(f) {
@@ -779,26 +376,20 @@ function renderMovimientos(movs, tbodyId) {
   const tbody = $(tbodyId);
   tbody.innerHTML = '';
   let saldoAcum = 0;
-
-  movs.forEach(m => {
+  const sorted = [...movs].sort((a,b) => parseFecha(a['FECHA']) - parseFecha(b['FECHA']));
+  sorted.forEach(m => {
     const debe = parseFloat(m['DEBE'] || 0);
     const haber = parseFloat(m['HABER'] || 0);
     saldoAcum += debe - haber;
-
     const tipo = (m['TIPO'] || '').toString().toUpperCase();
-    let badgeClass = 'badge-pedido';
-    let conceptoLabel = tipo;
-    if (tipo === 'RECIBO') { badgeClass = 'badge-recibo'; conceptoLabel = 'Recibo'; }
-    else if (tipo === 'PEDIDO') { conceptoLabel = 'Nota de pedido'; }
-    else if (tipo === 'CARGO') { badgeClass = 'badge-cargo'; conceptoLabel = m['OBSERVACION'] || 'Cargo'; }
-
+    let badgeClass = 'badge-pedido', label = 'Nota de pedido';
+    if (tipo === 'RECIBO') { badgeClass = 'badge-recibo'; label = 'Recibo'; }
+    else if (tipo === 'CARGO') { badgeClass = 'badge-cargo'; label = m['OBSERVACION'] || 'Cargo'; }
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="mono">${m['FECHA'] || '—'}</td>
-      <td>
-        <span class="badge ${badgeClass}">${conceptoLabel}</span>
-      </td>
-      <td class="mono">${m['NUMERO'] || '—'}</td>
+      <td><span class="badge ${badgeClass}">${label}</span></td>
+      <td class="mono">${m['NUMERO'] ? 'NP-'+m['NUMERO'] : '—'}</td>
       <td class="amount-debe">${debe > 0 ? fmt(debe) : '—'}</td>
       <td class="amount-haber">${haber > 0 ? fmt(haber) : '—'}</td>
       <td class="saldo-acum" style="color:${saldoAcum > 0 ? 'var(--red)' : 'var(--green)'}">${fmt(saldoAcum)}</td>
@@ -808,202 +399,131 @@ function renderMovimientos(movs, tbodyId) {
 }
 
 function actualizarSummary(movs, debeId, haberId, saldoId) {
-  const totalDebe = movs.reduce((a, m) => a + parseFloat(m['DEBE'] || 0), 0);
-  const totalHaber = movs.reduce((a, m) => a + parseFloat(m['HABER'] || 0), 0);
-  const saldo = totalDebe - totalHaber;
-  $(debeId).textContent = fmt(totalDebe);
-  $(haberId).textContent = fmt(totalHaber);
-  $(saldoId).textContent = fmt(saldo);
+  const td = movs.reduce((a,m) => a + parseFloat(m['DEBE']||0), 0);
+  const th = movs.reduce((a,m) => a + parseFloat(m['HABER']||0), 0);
+  $(debeId).textContent = fmt(td);
+  $(haberId).textContent = fmt(th);
+  $(saldoId).textContent = fmt(td - th);
 }
 
-// ── ADMIN ──
-function adminTab(tab) {
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  ['resumen','recibo','cargo','historial'].forEach(t => {
-    $(`admin-${t}`).style.display = t === tab ? '' : 'none';
-  });
+function renderMovimientosCliente(movs) {
+  $('client-loading').style.display = 'none';
+  if (!movs.length) { $('client-empty').style.display = 'block'; actualizarSummary([], 'sum-debe', 'sum-haber', 'sum-saldo'); return; }
+  renderMovimientos(movs, 'client-tbody');
+  $('client-table').style.display = 'table';
+  actualizarSummary(movs, 'sum-debe', 'sum-haber', 'sum-saldo');
 }
 
 async function cargarAdmin() {
   try {
-    allClientes = await fetchSheet('CLIENTES!A:F');
-    allMovimientos = await fetchSheet('MOVIMIENTOS!A:H');
-
-    // Resumen por cliente
-    const activos = allClientes.filter(c => c['CLIENTE'] && c['ACTIVO'] !== false && c['ACTIVO'] !== 0 && c['ACTIVO'] !== 'false');
-    
+    const { movs, clientes } = await getMovimientos();
     $('admin-loading').style.display = 'none';
     const cards = $('admin-client-cards');
     cards.style.display = 'grid';
     cards.innerHTML = '';
-
-    activos.forEach(c => {
-      const nombre = c['CLIENTE'];
-      const movs = allMovimientos.filter(m => m['CLIENTE'] && m['CLIENTE'].toString().toUpperCase() === nombre.toUpperCase());
-      const debe = movs.reduce((a,m) => a + parseFloat(m['DEBE']||0), 0);
-      const haber = movs.reduce((a,m) => a + parseFloat(m['HABER']||0), 0);
-      const saldo = debe - haber;
-
+    clientes.forEach(nombre => {
+      const mc = movs.filter(m => m['CLIENTE'].toString().trim() === nombre);
+      const debe = mc.reduce((a,m) => a + parseFloat(m['DEBE']||0), 0);
+      const haber = mc.reduce((a,m) => a + parseFloat(m['HABER']||0), 0);
       const card = document.createElement('div');
       card.className = 'client-card';
-      card.innerHTML = `
-        <div class="name">${nombre}</div>
-        <div class="saldo-label">Saldo pendiente</div>
-        <div class="saldo-val">${fmt(saldo)}</div>
-      `;
-      card.onclick = () => {
-        adminTab({ target: document.querySelectorAll('.admin-tab')[3] });
-        document.querySelectorAll('.admin-tab').forEach((t,i) => t.classList.toggle('active', i===3));
-        $('admin-resumen').style.display = 'none';
-        $('admin-recibo').style.display = 'none';
-        $('admin-cargo').style.display = 'none';
-        $('admin-historial').style.display = '';
-        $('historial-cliente').value = nombre;
-        cargarHistorial();
-      };
+      card.innerHTML = `<div class="name">${nombre}</div><div class="saldo-label">Saldo pendiente</div><div class="saldo-val">${fmt(debe-haber)}</div>`;
+      card.onclick = () => verCuentaCliente(nombre);
       cards.appendChild(card);
     });
-
-    // Populate selects
-    const selects = ['recibo-cliente','cargo-cliente','historial-cliente'];
-    selects.forEach(sid => {
+    ['recibo-cliente','cargo-cliente','historial-cliente'].forEach(sid => {
       const sel = $(sid);
-      const firstOpt = sel.options[0];
+      const first = sel.options[0];
       sel.innerHTML = '';
-      if (firstOpt) sel.appendChild(firstOpt);
-      activos.forEach(c => {
+      sel.appendChild(first);
+      clientes.forEach(nombre => {
         const opt = document.createElement('option');
-        opt.value = c['CLIENTE'];
-        opt.textContent = c['CLIENTE'];
+        opt.value = nombre; opt.textContent = nombre;
         sel.appendChild(opt);
       });
     });
-
   } catch(e) {
     $('admin-loading').innerHTML = '<p style="color:var(--red)">Error al cargar datos.</p>';
   }
 }
 
+function verCuentaCliente(nombre) {
+  document.querySelectorAll('.admin-tab').forEach((t,i) => t.classList.toggle('active', i===3));
+  ['resumen','recibo','cargo'].forEach(t => $(`admin-${t}`).style.display = 'none');
+  $('admin-historial').style.display = '';
+  $('historial-cliente').value = nombre;
+  cargarHistorial();
+}
+
+function adminTab(tab, btn) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  ['resumen','recibo','cargo','historial'].forEach(t => $(`admin-${t}`).style.display = t === tab ? '' : 'none');
+}
+
 async function cargarHistorial() {
   const nombre = $('historial-cliente').value;
-  if (!nombre) {
-    $('admin-summary').style.display = 'none';
-    $('admin-table-wrap').style.display = 'none';
-    return;
-  }
-
+  if (!nombre) { $('admin-summary').style.display = 'none'; $('admin-table-wrap').style.display = 'none'; return; }
   try {
-    const movs = await fetchSheet('MOVIMIENTOS!A:H');
-    const clienteMovs = movs.filter(m =>
-      m['CLIENTE'] && m['CLIENTE'].toString().toUpperCase() === nombre.toUpperCase()
-    ).sort((a,b) => parseFecha(a['FECHA']) - parseFecha(b['FECHA']));
-
+    const { movs } = await getMovimientos();
+    const clienteMovs = movs.filter(m => m['CLIENTE'].toString().trim() === nombre);
     $('admin-summary').style.display = 'grid';
     $('admin-table-wrap').style.display = '';
     actualizarSummary(clienteMovs, 'admin-sum-debe', 'admin-sum-haber', 'admin-sum-saldo');
     renderMovimientos(clienteMovs, 'admin-tbody');
-  } catch(e) {}
+  } catch(e) { console.error(e); }
 }
 
-// ── GUARDAR RECIBO ──
 async function guardarRecibo() {
   const cliente = $('recibo-cliente').value;
   const monto = parseFloat($('recibo-monto').value);
   const obs = $('recibo-obs').value.trim();
-
   if (!cliente || !monto || monto <= 0) return;
-
   $('btn-recibo').disabled = true;
-  $('recibo-ok').style.display = 'none';
-  $('recibo-err').style.display = 'none';
-
+  $('recibo-ok').style.display = 'none'; $('recibo-err').style.display = 'none';
   try {
-    // Obtener próximo número de recibo para este cliente
-    const movs = await fetchSheet('MOVIMIENTOS!A:H');
-    const recibosCliente = movs.filter(m =>
-      m['CLIENTE'] && m['CLIENTE'].toString().toUpperCase() === cliente.toUpperCase() &&
-      m['TIPO'] && m['TIPO'].toString().toUpperCase() === 'RECIBO'
-    );
-    const nroRecibo = recibosCliente.length + 1;
-
-    await escribirMovimiento(today(), cliente, 'RECIBO', `REC-${nroRecibo}`, 0, monto, obs);
-
+    const { movs } = await getMovimientos();
+    const recibos = movs.filter(m => m['CLIENTE'].toString().trim() === cliente && (m['TIPO']||'').toUpperCase() === 'RECIBO');
+    await escribirMovimiento(today(), cliente, 'RECIBO', `REC-${recibos.length+1}`, 0, monto, obs);
     $('recibo-ok').style.display = 'block';
-    $('recibo-monto').value = '';
-    $('recibo-obs').value = '';
-    allMovimientos = await fetchSheet('MOVIMIENTOS!A:H');
+    $('recibo-monto').value = ''; $('recibo-obs').value = '';
   } catch(e) {
-    if (e.message === 'APPS_SCRIPT_NOT_CONFIGURED') {
-      $('recibo-err').textContent = 'Para escribir datos necesitás configurar el Apps Script. Ver instrucciones abajo.';
-    } else {
-      $('recibo-err').textContent = 'Error al registrar. Verificá la conexión.';
-    }
+    $('recibo-err').textContent = 'Error al registrar.';
     $('recibo-err').style.display = 'block';
-  } finally {
-    $('btn-recibo').disabled = false;
-  }
+  } finally { $('btn-recibo').disabled = false; }
 }
 
-// ── GUARDAR CARGO ──
 async function guardarCargo() {
   const cliente = $('cargo-cliente').value;
   const monto = parseFloat($('cargo-monto').value);
   const concepto = $('cargo-concepto').value.trim();
-
   if (!cliente || !monto || monto <= 0 || !concepto) return;
-
   $('btn-cargo').disabled = true;
-  $('cargo-ok').style.display = 'none';
-  $('cargo-err').style.display = 'none';
-
+  $('cargo-ok').style.display = 'none'; $('cargo-err').style.display = 'none';
   try {
     await escribirMovimiento(today(), cliente, 'CARGO', '', monto, 0, concepto);
     $('cargo-ok').style.display = 'block';
-    $('cargo-monto').value = '';
-    $('cargo-concepto').value = '';
+    $('cargo-monto').value = ''; $('cargo-concepto').value = '';
   } catch(e) {
-    if (e.message === 'APPS_SCRIPT_NOT_CONFIGURED') {
-      $('cargo-err').textContent = 'Para escribir datos necesitás configurar el Apps Script. Ver instrucciones.';
-    } else {
-      $('cargo-err').textContent = 'Error al registrar.';
-    }
+    $('cargo-err').textContent = 'Error al registrar.';
     $('cargo-err').style.display = 'block';
-  } finally {
-    $('btn-cargo').disabled = false;
-  }
+  } finally { $('btn-cargo').disabled = false; }
 }
 
 async function escribirMovimiento(fecha, cliente, tipo, numero, debe, haber, obs) {
-  // Necesita un Google Apps Script desplegado como Web App
-  // que reciba POST y agregue la fila a MOVIMIENTOS
   const res = await fetch(APPS_SCRIPT_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      sheetId: SHEET_ID,
-      sheet: 'MOVIMIENTOS',
-      row: [fecha, '', cliente, tipo, numero, debe, haber, obs]
-    })
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ sheetId: SHEET_ID, sheet: 'MOVIMIENTOS', row: [fecha, '', cliente, tipo, numero, debe, haber, obs] })
   });
   if (!res.ok) throw new Error('fetch_error');
 }
 
-// ── KEYBOARD ENTER ──
 document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    if ($('login-cliente').style.display !== 'none') loginCliente();
-    else if ($('login-admin').style.display !== 'none') loginAdmin();
-  }
+  if (e.key !== 'Enter') return;
+  if ($('login-admin').style.display !== 'none') loginAdmin();
+  else loginCliente();
 });
 </script>
-
-<!-- NOTA PARA ESCRIBIR DATOS -->
-<div id="setup-note" style="display:none; position:fixed; bottom:16px; right:16px; background:var(--card); border:1.5px solid var(--accent); border-radius:10px; padding:16px; max-width:320px; font-size:12px; color:var(--ink2); box-shadow:var(--shadow);">
-  <strong style="color:var(--accent)">⚙️ Configuración pendiente</strong><br><br>
-  Para cargar recibos y cargos necesitás un Google Apps Script.<br>
-  Pedile a Claude que te lo genere y desplegalo como Web App.
-</div>
-
 </body>
 </html>
