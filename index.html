@@ -101,7 +101,6 @@
     letter-spacing: 0.05em;
   }
 
-  /* Search box */
   .search-card {
     background: white;
     border: 1.5px solid var(--border);
@@ -121,10 +120,7 @@
     display: block;
   }
 
-  .search-row {
-    display: flex;
-    gap: 12px;
-  }
+  .search-row { display: flex; gap: 12px; }
 
   .search-input {
     flex: 1;
@@ -161,7 +157,6 @@
   .btn-buscar:hover { background: var(--terracotta); }
   .btn-buscar:disabled { background: var(--sand); cursor: not-allowed; }
 
-  /* Loading */
   .loading {
     display: none;
     text-align: center;
@@ -221,7 +216,6 @@
     letter-spacing: 0.1em;
   }
 
-  /* ── ESTADÍSTICAS ── */
   .stats-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -254,7 +248,6 @@
     text-transform: uppercase;
   }
 
-  /* ── FILTROS ── */
   .filtros-row {
     display: flex;
     gap: 8px;
@@ -299,7 +292,6 @@
     color: var(--brown);
   }
 
-  /* Mensaje sin resultados para filtro */
   .filtro-empty {
     display: none;
     text-align: center;
@@ -310,7 +302,6 @@
     letter-spacing: 0.08em;
   }
 
-  /* ── CARDS ── */
   .pedido-card {
     background: white;
     border: 1.5px solid var(--border);
@@ -370,7 +361,6 @@
     gap: 8px;
   }
 
-  /* Estado badges */
   .estado-badge {
     font-family: 'DM Mono', monospace;
     font-size: 0.65rem;
@@ -409,7 +399,6 @@
   .tipo-STOCK     { background: #E8F0E8; color: var(--green); }
   .tipo-CURVA     { background: #E8E8F5; color: #4A4A8A; }
 
-  /* ── CONTADOR DÍAS HÁBILES ── */
   .contador-wrapper {
     border-top: 1px solid var(--light-sand);
     padding: 10px 22px 12px;
@@ -444,15 +433,10 @@
     align-items: center;
   }
 
-  .contador-texto .dias-restantes {
-    font-weight: 500;
-    color: var(--terracotta);
-  }
-
+  .contador-texto .dias-restantes { font-weight: 500; color: var(--terracotta); }
   .contador-texto .dias-restantes.completo { color: var(--green); }
   .contador-texto .dias-restantes.vencido  { color: #8B3020; }
 
-  /* Empty state */
   .empty-state {
     display: none;
     text-align: center;
@@ -531,21 +515,14 @@
   </div>
 
   <div class="resultado" id="resultado">
-
     <div class="resultado-header">
       <div class="resultado-nombre" id="resultadoNombre"></div>
       <div class="resultado-count" id="resultadoCount"></div>
     </div>
-
-    <!-- Estadísticas -->
     <div class="stats-row" id="statsRow"></div>
-
-    <!-- Filtros -->
     <div class="filtros-row" id="filtrosRow"></div>
-
     <div id="listaPedidos"></div>
     <div class="filtro-empty" id="filtroEmpty">No hay pedidos en este estado</div>
-
   </div>
 
 </div>
@@ -558,11 +535,11 @@ const GID = "1829079727";
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=${GID}`;
 const CSV_URL = "https://corsproxy.io/?" + encodeURIComponent(SHEET_URL);
 
-// Estados activos por defecto (los que le importan al cliente)
-const ESTADOS_ACTIVOS = ['PENDIENTE', 'FACTURADO PREORDER', 'PRODUCCION', 'PRODUCCIÓN', 'SEPARADO'];
+// ✅ LISTO agregado — ahora aparece en Activos por defecto
+const ESTADOS_ACTIVOS = ['PENDIENTE', 'FACTURADO PREORDER', 'PRODUCCION', 'PRODUCCIÓN', 'SEPARADO', 'LISTO'];
 const DIAS_HABILES_ESTIMADO = 15;
 
-let todosLosPedidos = []; // todos del cliente
+let todosLosPedidos = [];
 let filtroActual = 'activos';
 
 document.getElementById('inputNombre').addEventListener('keydown', e => {
@@ -591,7 +568,6 @@ function parseCSV(text) {
   return rows;
 }
 
-// Calcula días hábiles entre dos fechas (excluye sáb y dom)
 function diasHabilesEntre(fechaDesde, fechaHasta) {
   let count = 0;
   const cur = new Date(fechaDesde);
@@ -606,7 +582,6 @@ function diasHabilesEntre(fechaDesde, fechaHasta) {
   return count;
 }
 
-// Suma N días hábiles a una fecha
 function sumarDiasHabiles(fecha, n) {
   const d = new Date(fecha);
   let count = 0;
@@ -618,17 +593,13 @@ function sumarDiasHabiles(fecha, n) {
   return d;
 }
 
-// Parsea fecha en formato dd/mm/yyyy o yyyy-mm-dd
 function parseFecha(str) {
   if (!str) return null;
   str = str.trim();
-  // dd/mm/yyyy
   let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
   if (m) return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
-  // dd/mm/yy (año 2 dígitos → 2000+)
   m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2})$/);
   if (m) return new Date(2000 + parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
-  // yyyy-mm-dd
   m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (m) return new Date(parseInt(m[1]), parseInt(m[2])-1, parseInt(m[3]));
   return null;
@@ -703,16 +674,13 @@ function contarPorFiltro(filtro) {
 function renderTodo(nombre) {
   const displayNombre = todosLosPedidos[0]['CLIENTE'] || nombre;
   document.getElementById('resultadoNombre').textContent = displayNombre;
-
   renderStats();
   renderFiltros();
   aplicarFiltro('activos');
-
   document.getElementById('resultado').style.display = 'block';
 }
 
 function renderStats() {
-  // Artículos únicos (por artículo+color combinados entregados o activos)
   const totalItems = todosLosPedidos.length;
   const entregados = todosLosPedidos.filter(p => normalizarEstado(p['ESTADO']||p['L']||'') === 'ENTREGADO').length;
   const enCurso = todosLosPedidos.filter(p => {
@@ -759,7 +727,6 @@ function renderFiltros() {
 function aplicarFiltro(filtro) {
   filtroActual = filtro;
 
-  // Actualizar botones activos
   document.querySelectorAll('.filtro-btn').forEach(btn => btn.classList.remove('active'));
   const btns = document.querySelectorAll('.filtro-btn');
   const filtros = ['activos','entregados','cancelados','todos'];
@@ -792,11 +759,11 @@ function aplicarFiltro(filtro) {
     const factura   = p['FACTURA']  || p['Q'] || '';
     const cantidad  = p['CANTIDAD'] || p['H'] || '1';
 
-    const estadoNorm = normalizarEstado(estado);
+    const estadoNorm  = normalizarEstado(estado);
     const estadoClass = 'estado-' + estado.toUpperCase().replace(/\s+/g,'-').replace('Ó','O').replace('Ú','U');
     const tipoClass   = 'tipo-' + tipo.replace(/\s+/g,'-');
 
-    // ¿Es un estado "en proceso" que debe mostrar contador?
+    // LISTO no muestra contador — el pedido ya llegó, solo falta retirarlo
     const esEnProceso = ['FACTURADO PREORDER','PRODUCCION','PRODUCCIÓN','PENDIENTE','SEPARADO']
       .map(e=>e.replace('PRODUCCIÓN','PRODUCCION'))
       .includes(estadoNorm);
@@ -812,25 +779,20 @@ function aplicarFiltro(filtro) {
         const diasRestantes = DIAS_HABILES_ESTIMADO - diasTranscurridos;
         const pct = Math.min(100, Math.max(0, (diasTranscurridos / DIAS_HABILES_ESTIMADO) * 100));
 
-        let barClass = '';
-        let textoRestante = '';
-        let labelClass = '';
+        let barClass = '', textoRestante = '', labelClass = '';
 
         if (diasRestantes > 0) {
-          barClass = '';
           textoRestante = `Faltan ${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} hábil${diasRestantes !== 1 ? 'es' : ''}`;
-          labelClass = '';
         } else if (diasRestantes === 0) {
           barClass = 'completo';
           textoRestante = 'Entrega estimada: hoy';
           labelClass = 'completo';
         } else {
           barClass = 'vencido';
-          textoRestante = `En preparación final`;
+          textoRestante = 'En preparación final';
           labelClass = 'vencido';
         }
 
-        // Formatear fecha estimada
         const opciones = { day: 'numeric', month: 'long' };
         const fechaEst = fechaEstimada.toLocaleDateString('es-AR', opciones);
 
