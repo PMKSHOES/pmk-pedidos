@@ -560,9 +560,9 @@ async function guardarCargo() {
 async function escribirMovimiento(fecha, cliente, tipo, numero, debe, haber, obs) {
   const params = new URLSearchParams({
     action: 'appendRow',
-    sheetId: SHEET_ID,
     sheet: 'MOVIMIENTOS',
-    row: JSON.stringify([fecha, '', cliente, tipo, numero, debe, haber, obs])
+    token: 'PMK2026',
+    values: JSON.stringify([fecha, '', cliente, tipo, numero, debe, haber, obs])
   });
   const res = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
   const data = await res.json();
