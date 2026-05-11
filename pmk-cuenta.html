@@ -61,6 +61,7 @@
   .badge-pedido { background:#FEF3C7; color:#92400E; }
   .badge-recibo { background:#D1FAE5; color:#065F46; }
   .badge-cargo { background:#FEE2E2; color:#991B1B; }
+  .badge-nota-credito { background:#EDE9FE; color:#5B21B6; }
   .amount-debe { color:var(--red); font-family:'DM Mono',monospace; }
   .amount-haber { color:var(--green); font-family:'DM Mono',monospace; }
   .saldo-acum { font-family:'DM Mono',monospace; font-size:13px; font-weight:500; }
@@ -175,6 +176,7 @@
     <div class="admin-tabs">
       <button class="admin-tab active" onclick="adminTab('resumen',this)">Resumen clientes</button>
       <button class="admin-tab" onclick="adminTab('recibo',this)">Cargar recibo</button>
+      <button class="admin-tab" onclick="adminTab('nota-credito',this)">Nota de crédito</button>
       <button class="admin-tab" onclick="adminTab('cargo',this)">Cargar cargo</button>
       <button class="admin-tab" onclick="adminTab('historial',this)">Ver cuenta</button>
     </div>
@@ -206,6 +208,31 @@
         <button class="btn-submit" onclick="guardarRecibo()" id="btn-recibo">Registrar recibo</button>
         <div class="success-msg" id="recibo-ok">✓ Recibo registrado correctamente.</div>
         <div class="error-msg" id="recibo-err"></div>
+      </div>
+    </div>
+
+    <div id="admin-nota-credito" style="display:none">
+      <div class="form-card">
+        <h3>Nueva nota de crédito</h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Cliente</label>
+            <select id="nc-cliente"><option value="">— Seleccioná —</option></select>
+          </div>
+          <div class="form-field">
+            <label>Importe ($)</label>
+            <input type="number" id="nc-monto" placeholder="0">
+          </div>
+        </div>
+        <div class="form-row single">
+          <div class="form-field">
+            <label>Motivo</label>
+            <input type="text" id="nc-obs" placeholder="Ej: Devolución artículo, descuento, etc.">
+          </div>
+        </div>
+        <button class="btn-submit" onclick="guardarNotaCredito()" id="btn-nc">Registrar nota de crédito</button>
+        <div class="success-msg" id="nc-ok">✓ Nota de crédito registrada correctamente.</div>
+        <div class="error-msg" id="nc-err"></div>
       </div>
     </div>
 
@@ -292,7 +319,7 @@ async function fetchSheet(range) {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&range=${encodeURIComponent(range)}&headers=1`;
   const res = await fetch(url);
   const text = await res.text();
-  const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
+  const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);\s*$/, ''));
   const cols = json.table.cols.map(c => c.label);
   return (json.table.rows || []).map(r => {
     const obj = {};
@@ -384,6 +411,7 @@ function renderMovimientos(movs, tbodyId) {
     const tipo = (m['TIPO'] || '').toString().toUpperCase();
     let badgeClass = 'badge-pedido', label = 'Nota de pedido';
     if (tipo === 'RECIBO') { badgeClass = 'badge-recibo'; label = 'Recibo'; }
+    else if (tipo === 'NOTA CREDITO' || tipo === 'NOTA DE CREDITO') { badgeClass = 'badge-nota-credito'; label = 'Nota de crédito'; }
     else if (tipo === 'CARGO') { badgeClass = 'badge-cargo'; label = m['OBSERVACION'] || 'Cargo'; }
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -431,7 +459,7 @@ async function cargarAdmin() {
       card.onclick = () => verCuentaCliente(nombre);
       cards.appendChild(card);
     });
-    ['recibo-cliente','cargo-cliente','historial-cliente'].forEach(sid => {
+    ['recibo-cliente','nc-cliente','cargo-cliente','historial-cliente'].forEach(sid => {
       const sel = $(sid);
       const first = sel.options[0];
       sel.innerHTML = '';
@@ -448,8 +476,8 @@ async function cargarAdmin() {
 }
 
 function verCuentaCliente(nombre) {
-  document.querySelectorAll('.admin-tab').forEach((t,i) => t.classList.toggle('active', i===3));
-  ['resumen','recibo','cargo'].forEach(t => $(`admin-${t}`).style.display = 'none');
+  document.querySelectorAll('.admin-tab').forEach((t,i) => t.classList.toggle('active', i===4));
+  ['resumen','recibo','nota-credito','cargo'].forEach(t => $(`admin-${t}`).style.display = 'none');
   $('admin-historial').style.display = '';
   $('historial-cliente').value = nombre;
   cargarHistorial();
@@ -458,7 +486,7 @@ function verCuentaCliente(nombre) {
 function adminTab(tab, btn) {
   document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
   if (btn) btn.classList.add('active');
-  ['resumen','recibo','cargo','historial'].forEach(t => $(`admin-${t}`).style.display = t === tab ? '' : 'none');
+  ['resumen','recibo','nota-credito','cargo','historial'].forEach(t => $(`admin-${t}`).style.display = t === tab ? '' : 'none');
 }
 
 async function cargarHistorial() {
@@ -493,6 +521,25 @@ async function guardarRecibo() {
   } finally { $('btn-recibo').disabled = false; }
 }
 
+async function guardarNotaCredito() {
+  const cliente = $('nc-cliente').value;
+  const monto = parseFloat($('nc-monto').value);
+  const obs = $('nc-obs').value.trim();
+  if (!cliente || !monto || monto <= 0) return;
+  $('btn-nc').disabled = true;
+  $('nc-ok').style.display = 'none'; $('nc-err').style.display = 'none';
+  try {
+    const { movs } = await getMovimientos();
+    const ncs = movs.filter(m => m['CLIENTE'].toString().trim() === cliente && (m['TIPO']||'').toUpperCase().includes('NOTA'));
+    await escribirMovimiento(today(), cliente, 'NOTA CREDITO', `NC-${ncs.length+1}`, 0, monto, obs || 'Nota de crédito');
+    $('nc-ok').style.display = 'block';
+    $('nc-monto').value = ''; $('nc-obs').value = '';
+  } catch(e) {
+    $('nc-err').textContent = 'Error al registrar.';
+    $('nc-err').style.display = 'block';
+  } finally { $('btn-nc').disabled = false; }
+}
+
 async function guardarCargo() {
   const cliente = $('cargo-cliente').value;
   const monto = parseFloat($('cargo-monto').value);
@@ -521,7 +568,6 @@ async function escribirMovimiento(fecha, cliente, tipo, numero, debe, haber, obs
   const data = await res.json();
   if (!data.ok) throw new Error(data.error || 'error');
 }
-
 
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
