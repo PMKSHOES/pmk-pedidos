@@ -9,7 +9,7 @@
   :root { --bg:#F5F0E8; --bg2:#EDE7D9; --ink:#1A1612; --ink2:#5C5248; --accent:#C4502A; --accent2:#8B3520; --green:#2A6B3F; --red:#C4502A; --border:#D4CBBA; --card:#FFFFFF; --shadow:0 2px 12px rgba(26,22,18,0.08); }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
-  #login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  #login-screen { min-height:100vh; display:flex; align-items:center; justifyh-content:center; padding:24px; }
   .login-box { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:48px 40px; width:100%; max-width:420px; box-shadow:var(--shadow); }
   .login-logo { font-family:'DM Serif Display',serif; font-size:28px; color:var(--accent); letter-spacing:-0.5px; margin-bottom:4px; }
   .login-sub { font-size:13px; color:var(--ink2); margin-bottom:36px; }
@@ -259,7 +259,7 @@
 <script>
 const SHEET_ID='16its3gc9bSbIwCZPV-MYrwY7FInlagDsTW-ZJIdNKWM';
 const ADMIN_HASH='c6719937a424173d4a1311b70939f507be1a5eacc78183e1d9a30938e1ea611d';
-const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzfR3Qihel97ijsbO26WEx1jfnMu889YRHVmbW-_K0-3zboxDLyrLghDA9WMdEf4fwu/exec';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbzfR3QiheI97ijsbO26WEx1jfnMu889YRHVmbW-_K0-3zboxDLyrLghDA9WMdEf4fwu/exec';
 const REFRESH_INTERVAL=30000;
 const $=id=>document.getElementById(id);
 const fmt=n=>'$'+Number(n||0).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0});
