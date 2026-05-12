@@ -180,18 +180,9 @@
 
   <div id="view-cliente" class="main" style="display:none">
     <div class="summary-cards">
-      <div class="summary-card">
-        <div class="label">Total facturado</div>
-        <div class="value" id="sum-debe">—</div>
-      </div>
-      <div class="summary-card pagado">
-        <div class="label">Total pagado</div>
-        <div class="value" id="sum-haber">—</div>
-      </div>
-      <div class="summary-card saldo">
-        <div class="label">Saldo pendiente</div>
-        <div class="value" id="sum-saldo">—</div>
-      </div>
+      <div class="summary-card"><div class="label">Total facturado</div><div class="value" id="sum-debe">—</div></div>
+      <div class="summary-card pagado"><div class="label">Total pagado</div><div class="value" id="sum-haber">—</div></div>
+      <div class="summary-card saldo"><div class="label">Saldo pendiente</div><div class="value" id="sum-saldo">—</div></div>
     </div>
     <div class="section-title">Movimientos</div>
     <div class="table-wrap">
@@ -221,20 +212,11 @@
       <div class="form-card">
         <h3>Nuevo recibo de pago</h3>
         <div class="form-row">
-          <div class="form-field">
-            <label>Cliente</label>
-            <select id="recibo-cliente"><option value="">— Seleccioná —</option></select>
-          </div>
-          <div class="form-field">
-            <label>Importe ($)</label>
-            <input type="number" id="recibo-monto" placeholder="0">
-          </div>
+          <div class="form-field"><label>Cliente</label><select id="recibo-cliente"><option value="">— Seleccioná —</option></select></div>
+          <div class="form-field"><label>Importe ($)</label><input type="number" id="recibo-monto" placeholder="0"></div>
         </div>
         <div class="form-row single">
-          <div class="form-field">
-            <label>Observación (opcional)</label>
-            <input type="text" id="recibo-obs" placeholder="Transferencia, efectivo, etc.">
-          </div>
+          <div class="form-field"><label>Observación (opcional)</label><input type="text" id="recibo-obs" placeholder="Transferencia, efectivo, etc."></div>
         </div>
         <button class="btn-submit" onclick="guardarRecibo()" id="btn-recibo">Registrar recibo</button>
         <div class="success-msg" id="recibo-ok">✓ Recibo registrado correctamente.</div>
@@ -246,20 +228,11 @@
       <div class="form-card">
         <h3>Cargo extra (envío, ajuste, etc.)</h3>
         <div class="form-row">
-          <div class="form-field">
-            <label>Cliente</label>
-            <select id="cargo-cliente"><option value="">— Seleccioná —</option></select>
-          </div>
-          <div class="form-field">
-            <label>Importe ($)</label>
-            <input type="number" id="cargo-monto" placeholder="0">
-          </div>
+          <div class="form-field"><label>Cliente</label><select id="cargo-cliente"><option value="">— Seleccioná —</option></select></div>
+          <div class="form-field"><label>Importe ($)</label><input type="number" id="cargo-monto" placeholder="0"></div>
         </div>
         <div class="form-row single">
-          <div class="form-field">
-            <label>Concepto</label>
-            <input type="text" id="cargo-concepto" placeholder="Ej: Envío Correo Argentino">
-          </div>
+          <div class="form-field"><label>Concepto</label><input type="text" id="cargo-concepto" placeholder="Ej: Envío Correo Argentino"></div>
         </div>
         <button class="btn-submit" onclick="guardarCargo()" id="btn-cargo">Registrar cargo</button>
         <div class="success-msg" id="cargo-ok">✓ Cargo registrado correctamente.</div>
@@ -274,18 +247,9 @@
         </select>
       </div>
       <div class="summary-cards" id="admin-summary" style="display:none">
-        <div class="summary-card">
-          <div class="label">Total facturado</div>
-          <div class="value" id="admin-sum-debe">—</div>
-        </div>
-        <div class="summary-card pagado">
-          <div class="label">Total pagado</div>
-          <div class="value" id="admin-sum-haber">—</div>
-        </div>
-        <div class="summary-card saldo">
-          <div class="label">Saldo pendiente</div>
-          <div class="value" id="admin-sum-saldo">—</div>
-        </div>
+        <div class="summary-card"><div class="label">Total facturado</div><div class="value" id="admin-sum-debe">—</div></div>
+        <div class="summary-card pagado"><div class="label">Total pagado</div><div class="value" id="admin-sum-haber">—</div></div>
+        <div class="summary-card saldo"><div class="label">Saldo pendiente</div><div class="value" id="admin-sum-saldo">—</div></div>
       </div>
       <div class="table-wrap" id="admin-table-wrap" style="display:none">
         <table>
@@ -359,19 +323,20 @@ async function getMovimientos() {
   return { movs: validos, clientes: unicos };
 }
 
-async function fetchPedidoItems(ordenNum) {
+// Busca por FACTURA # (col Q) que es el número correlativo guardado en MOVIMIENTOS
+async function fetchPedidoItems(facturaNum) {
   const rows = await fetchSheet('PEDIDOS!A:R');
-  return rows.filter(r => r['ORDEN #'] && r['ORDEN #'].toString() === ordenNum.toString());
+  return rows.filter(r => String(r['FACTURA #'] || r['FACTURA'] || '').trim() === String(facturaNum).trim());
 }
 
-async function openItemsModal(ordenNum, fecha, cliente) {
+async function openItemsModal(facturaNum, fecha, cliente) {
   isModalOpen = true;
-  $('modal-title').textContent = `NP-${ordenNum}`;
+  $('modal-title').textContent = `NP-${facturaNum}`;
   $('modal-sub').textContent = `${cliente} · ${fecha}`;
   $('modal-body').innerHTML = '<div class="modal-loading"><div class="modal-spinner"></div>Cargando ítems...</div>';
   $('modal-overlay').classList.add('open');
   try {
-    const items = await fetchPedidoItems(ordenNum);
+    const items = await fetchPedidoItems(facturaNum);
     if (!items.length) {
       $('modal-body').innerHTML = '<p style="color:var(--ink2);font-size:13px;text-align:center;padding:24px 0">No se encontraron ítems para este pedido.</p>';
       return;
