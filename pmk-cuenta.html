@@ -6,19 +6,7 @@
 <title>PMK Shoes — Cuenta Corriente</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #F5F0E8;
-    --bg2: #EDE7D9;
-    --ink: #1A1612;
-    --ink2: #5C5248;
-    --accent: #C4502A;
-    --accent2: #8B3520;
-    --green: #2A6B3F;
-    --red: #C4502A;
-    --border: #D4CBBA;
-    --card: #FFFFFF;
-    --shadow: 0 2px 12px rgba(26,22,18,0.08);
-  }
+  :root { --bg:#F5F0E8; --bg2:#EDE7D9; --ink:#1A1612; --ink2:#5C5248; --accent:#C4502A; --accent2:#8B3520; --green:#2A6B3F; --red:#C4502A; --border:#D4CBBA; --card:#FFFFFF; --shadow:0 2px 12px rgba(26,22,18,0.08); }
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--ink); min-height:100vh; }
   #login-screen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
@@ -41,8 +29,8 @@
   .topbar-right { display:flex; align-items:center; gap:16px; }
   .topbar-user { font-size:13px; color:var(--ink2); }
   .refresh-indicator { font-size:11px; color:var(--ink2); display:flex; align-items:center; gap:6px; opacity:0.7; }
-  .refresh-dot { width:6px; height:6px; border-radius:50%; background:var(--green); transition:opacity .3s; }
-  .refresh-dot.pulse { animation: refreshpulse 0.6s ease-out; }
+  .refresh-dot { width:6px; height:6px; border-radius:50%; background:var(--green); }
+  .refresh-dot.pulse { animation:refreshpulse 0.6s ease-out; }
   @keyframes refreshpulse { 0%{transform:scale(1);opacity:1} 50%{transform:scale(1.8);opacity:0.5} 100%{transform:scale(1);opacity:1} }
   .btn-logout { font-size:12px; font-weight:600; color:var(--ink2); background:none; border:1.5px solid var(--border); border-radius:6px; padding:6px 12px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .2s; }
   .btn-logout:hover { border-color:var(--accent); color:var(--accent); }
@@ -77,7 +65,6 @@
   .admin-tab.active { background:var(--accent); color:white; }
   .client-selector { margin-bottom:24px; }
   .client-selector select { width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:8px; font-family:'DM Sans',sans-serif; font-size:14px; background:var(--card); color:var(--ink); outline:none; cursor:pointer; }
-  .client-selector select:focus { border-color:var(--accent); }
   .form-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:24px; }
   .form-card h3 { font-family:'DM Serif Display',serif; font-size:17px; margin-bottom:20px; }
   .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
@@ -107,14 +94,13 @@
   .modal-header { padding:20px 24px 16px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; justify-content:space-between; }
   .modal-title { font-family:'DM Serif Display',serif; font-size:18px; color:var(--ink); }
   .modal-sub { font-size:12px; color:var(--ink2); margin-top:3px; }
-  .modal-close { background:none; border:none; cursor:pointer; padding:4px; color:var(--ink2); font-size:20px; line-height:1; transition:color .15s; }
-  .modal-close:hover { color:var(--ink); }
+  .modal-close { background:none; border:none; cursor:pointer; padding:4px; color:var(--ink2); font-size:20px; line-height:1; }
   .modal-body { padding:16px 24px 24px; max-height:60vh; overflow-y:auto; }
   .modal-loading { text-align:center; padding:32px; color:var(--ink2); font-size:13px; }
   .modal-spinner { width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 10px; }
   .items-table { width:100%; border-collapse:collapse; font-size:13px; }
   .items-table th { padding:8px 10px; text-align:left; font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink2); border-bottom:1.5px solid var(--border); }
-  .items-table td { padding:10px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+  .items-table td { padding:10px; border-bottom:1px solid var(--border); vertical-align:middle; }
   .items-table tr:last-child td { border-bottom:none; }
   .items-table .art { font-weight:500; }
   .items-table .price { font-family:'DM Mono',monospace; text-align:right; }
@@ -123,18 +109,17 @@
   @media (max-width:640px) {
     .summary-cards { grid-template-columns:1fr; }
     .form-row { grid-template-columns:1fr; }
-    .topbar { padding:0 16px; }
+    .topbar,.main { padding:0 16px; }
     .main { padding:20px 16px; }
     .login-box { padding:32px 24px; }
     .admin-tabs { flex-wrap:wrap; width:100%; }
-    .admin-tab { flex:1; min-width:100px; text-align:center; font-size:12px; padding:8px 10px; }
+    .admin-tab { flex:1; min-width:80px; text-align:center; font-size:11px; padding:8px 6px; }
     th:nth-child(5), td:nth-child(5) { display:none; }
     .refresh-indicator span { display:none; }
   }
 </style>
 </head>
 <body>
-
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">PMK Shoes</div>
@@ -144,21 +129,12 @@
       <button class="login-tab" onclick="setLoginMode('admin')">Admin</button>
     </div>
     <div id="login-cliente">
-      <div class="field-group">
-        <label>Tu nombre</label>
-        <input type="text" id="login-nombre" placeholder="Como figura en tu cuenta" autocomplete="off">
-      </div>
-      <div class="field-group">
-        <label>PIN</label>
-        <input type="password" id="login-pin" placeholder="••••••" maxlength="6">
-      </div>
+      <div class="field-group"><label>Tu nombre</label><input type="text" id="login-nombre" placeholder="Como figura en tu cuenta" autocomplete="off"></div>
+      <div class="field-group"><label>PIN</label><input type="password" id="login-pin" placeholder="••••••" maxlength="6"></div>
       <button class="btn-primary" onclick="loginCliente()">Ingresar</button>
     </div>
     <div id="login-admin" style="display:none">
-      <div class="field-group">
-        <label>Contraseña</label>
-        <input type="password" id="login-admin-pass" placeholder="••••••••••••">
-      </div>
+      <div class="field-group"><label>Contraseña</label><input type="password" id="login-admin-pass" placeholder="••••••••••••"></div>
       <button class="btn-primary" onclick="loginAdmin()">Ingresar</button>
     </div>
     <div class="login-error" id="login-error">Usuario o PIN incorrecto.</div>
@@ -197,9 +173,10 @@
 
   <div id="view-admin" class="main" style="display:none">
     <div class="admin-tabs">
-      <button class="admin-tab active" onclick="adminTab('resumen',this)">Resumen clientes</button>
-      <button class="admin-tab" onclick="adminTab('recibo',this)">Cargar recibo</button>
-      <button class="admin-tab" onclick="adminTab('cargo',this)">Cargar cargo</button>
+      <button class="admin-tab active" onclick="adminTab('resumen',this)">Resumen</button>
+      <button class="admin-tab" onclick="adminTab('recibo',this)">Recibo</button>
+      <button class="admin-tab" onclick="adminTab('cargo',this)">Cargo</button>
+      <button class="admin-tab" onclick="adminTab('nc',this)">Nota crédito</button>
       <button class="admin-tab" onclick="adminTab('historial',this)">Ver cuenta</button>
     </div>
 
@@ -215,11 +192,9 @@
           <div class="form-field"><label>Cliente</label><select id="recibo-cliente"><option value="">— Seleccioná —</option></select></div>
           <div class="form-field"><label>Importe ($)</label><input type="number" id="recibo-monto" placeholder="0"></div>
         </div>
-        <div class="form-row single">
-          <div class="form-field"><label>Observación (opcional)</label><input type="text" id="recibo-obs" placeholder="Transferencia, efectivo, etc."></div>
-        </div>
+        <div class="form-row single"><div class="form-field"><label>Observación (opcional)</label><input type="text" id="recibo-obs" placeholder="Transferencia, efectivo, etc."></div></div>
         <button class="btn-submit" onclick="guardarRecibo()" id="btn-recibo">Registrar recibo</button>
-        <div class="success-msg" id="recibo-ok">✓ Recibo registrado correctamente.</div>
+        <div class="success-msg" id="recibo-ok">✓ Recibo registrado.</div>
         <div class="error-msg" id="recibo-err"></div>
       </div>
     </div>
@@ -231,20 +206,30 @@
           <div class="form-field"><label>Cliente</label><select id="cargo-cliente"><option value="">— Seleccioná —</option></select></div>
           <div class="form-field"><label>Importe ($)</label><input type="number" id="cargo-monto" placeholder="0"></div>
         </div>
-        <div class="form-row single">
-          <div class="form-field"><label>Concepto</label><input type="text" id="cargo-concepto" placeholder="Ej: Envío Correo Argentino"></div>
-        </div>
+        <div class="form-row single"><div class="form-field"><label>Concepto</label><input type="text" id="cargo-concepto" placeholder="Ej: Envío Correo Argentino"></div></div>
         <button class="btn-submit" onclick="guardarCargo()" id="btn-cargo">Registrar cargo</button>
-        <div class="success-msg" id="cargo-ok">✓ Cargo registrado correctamente.</div>
+        <div class="success-msg" id="cargo-ok">✓ Cargo registrado.</div>
         <div class="error-msg" id="cargo-err"></div>
+      </div>
+    </div>
+
+    <div id="admin-nc" style="display:none">
+      <div class="form-card">
+        <h3>Nota de crédito</h3>
+        <div class="form-row">
+          <div class="form-field"><label>Cliente</label><select id="nc-cliente"><option value="">— Seleccioná —</option></select></div>
+          <div class="form-field"><label>Importe ($)</label><input type="number" id="nc-monto" placeholder="0"></div>
+        </div>
+        <div class="form-row single"><div class="form-field"><label>Motivo</label><input type="text" id="nc-obs" placeholder="Ej: Devolución, descuento, ajuste..."></div></div>
+        <button class="btn-submit" onclick="guardarNC()" id="btn-nc">Registrar nota de crédito</button>
+        <div class="success-msg" id="nc-ok">✓ Nota de crédito registrada.</div>
+        <div class="error-msg" id="nc-err"></div>
       </div>
     </div>
 
     <div id="admin-historial" style="display:none">
       <div class="client-selector">
-        <select id="historial-cliente" onchange="cargarHistorial()">
-          <option value="">— Seleccioná un cliente —</option>
-        </select>
+        <select id="historial-cliente" onchange="cargarHistorial()"><option value="">— Seleccioná un cliente —</option></select>
       </div>
       <div class="summary-cards" id="admin-summary" style="display:none">
         <div class="summary-card"><div class="label">Total facturado</div><div class="value" id="admin-sum-debe">—</div></div>
@@ -264,354 +249,98 @@
 <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-header">
-      <div>
-        <div class="modal-title" id="modal-title">Detalle del pedido</div>
-        <div class="modal-sub" id="modal-sub"></div>
-      </div>
+      <div><div class="modal-title" id="modal-title">Detalle del pedido</div><div class="modal-sub" id="modal-sub"></div></div>
       <button class="modal-close" onclick="closeModalDirect()">✕</button>
     </div>
-    <div class="modal-body" id="modal-body">
-      <div class="modal-loading"><div class="modal-spinner"></div>Cargando ítems...</div>
-    </div>
+    <div class="modal-body" id="modal-body"><div class="modal-loading"><div class="modal-spinner"></div>Cargando ítems...</div></div>
   </div>
 </div>
 
 <script>
-const SHEET_ID = '16its3gc9bSbIwCZPV-MYrwY7FInlagDsTW-ZJIdNKWM';
-const ADMIN_HASH = 'c6719937a424173d4a1311b70939f507be1a5eacc78183e1d9a30938e1ea611d';
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxSBP5-BGCizwyY5bNcQfJBguQ9dhZYNmbtd5NluoZcD6SqtSQ8siK2GNR_LLcElmTt/exec';
-const REFRESH_INTERVAL = 30000;
+const SHEET_ID='16its3gc9bSbIwCZPV-MYrwY7FInlagDsTW-ZJIdNKWM';
+const ADMIN_HASH='c6719937a424173d4a1311b70939f507be1a5eacc78183e1d9a30938e1ea611d';
+const APPS_SCRIPT_URL='https://script.google.com/macros/s/AKfycbxSBP5-BGCizwyY5bNcQfJBguQ9dhZYNmbtd5NluoZcD6SqtSQ8siK2GNR_LLcElmTt/exec';
+const REFRESH_INTERVAL=30000;
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Number(n||0).toLocaleString('es-AR',{minimumFractionDigits:0,maximumFractionDigits:0});
+const today=()=>{const d=new Date();return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;};
+let currentUser=null,refreshTimer=null,isModalOpen=false;
 
-const $ = id => document.getElementById(id);
-const fmt = n => '$' + Number(n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0});
-const today = () => { const d = new Date(); return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; };
+async function sha256(str){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
+function setLoginMode(mode){document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');$('login-cliente').style.display=mode==='cliente'?'':'none';$('login-admin').style.display=mode==='admin'?'':'none';$('login-error').style.display='none';}
+async function fetchSheet(range){const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&range=${encodeURIComponent(range)}&headers=1`;const res=await fetch(url);const text=await res.text();const json=JSON.parse(text.replace(/^[^(]+\(/,'').replace(/\);\s*$/,''));const cols=json.table.cols.map(c=>c.label);return(json.table.rows||[]).map(r=>{const obj={};r.c.forEach((cell,i)=>{obj[cols[i]]=cell?cell.v:'';});return obj;});}
+async function getMovimientos(){const movs=await fetchSheet('MOVIMIENTOS!A:H');const validos=movs.filter(m=>m['CLIENTE']&&m['CLIENTE'].toString().trim()!=='');const unicos=[...new Set(validos.map(m=>m['CLIENTE'].toString().trim()))].sort();return{movs:validos,clientes:unicos};}
+async function fetchPedidoItems(facturaNum){const rows=await fetchSheet('PEDIDOS!A:R');return rows.filter(r=>String(r['FACTURA #']||r['FACTURA']||'').trim()===String(facturaNum).trim());}
 
-let currentUser = null;
-let refreshTimer = null;
-let isModalOpen = false;
-
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-
-function setLoginMode(mode) {
-  document.querySelectorAll('.login-tab').forEach(t => t.classList.remove('active'));
-  event.target.classList.add('active');
-  $('login-cliente').style.display = mode === 'cliente' ? '' : 'none';
-  $('login-admin').style.display = mode === 'admin' ? '' : 'none';
-  $('login-error').style.display = 'none';
-}
-
-async function fetchSheet(range) {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&range=${encodeURIComponent(range)}&headers=1`;
-  const res = await fetch(url);
-  const text = await res.text();
-  const json = JSON.parse(text.replace(/^[^(]+\(/, '').replace(/\);?\s*$/, ''));
-  const cols = json.table.cols.map(c => c.label);
-  return (json.table.rows || []).map(r => {
-    const obj = {};
-    r.c.forEach((cell, i) => { obj[cols[i]] = cell ? cell.v : ''; });
-    return obj;
-  });
-}
-
-async function getMovimientos() {
-  const movs = await fetchSheet('MOVIMIENTOS!A:H');
-  const validos = movs.filter(m => m['CLIENTE'] && m['CLIENTE'].toString().trim() !== '');
-  const unicos = [...new Set(validos.map(m => m['CLIENTE'].toString().trim()))].sort();
-  return { movs: validos, clientes: unicos };
-}
-
-// Busca por FACTURA # (col Q) que es el número correlativo guardado en MOVIMIENTOS
-async function fetchPedidoItems(facturaNum) {
-  const rows = await fetchSheet('PEDIDOS!A:R');
-  return rows.filter(r => String(r['FACTURA #'] || r['FACTURA'] || '').trim() === String(facturaNum).trim());
-}
-
-async function openItemsModal(facturaNum, fecha, cliente) {
-  isModalOpen = true;
-  $('modal-title').textContent = `NP-${facturaNum}`;
-  $('modal-sub').textContent = `${cliente} · ${fecha}`;
-  $('modal-body').innerHTML = '<div class="modal-loading"><div class="modal-spinner"></div>Cargando ítems...</div>';
+async function openItemsModal(facturaNum,fecha,cliente){
+  isModalOpen=true;$('modal-title').textContent=`NP-${facturaNum}`;$('modal-sub').textContent=`${cliente} · ${fecha}`;
+  $('modal-body').innerHTML='<div class="modal-loading"><div class="modal-spinner"></div>Cargando ítems...</div>';
   $('modal-overlay').classList.add('open');
-  try {
-    const items = await fetchPedidoItems(facturaNum);
-    if (!items.length) {
-      $('modal-body').innerHTML = '<p style="color:var(--ink2);font-size:13px;text-align:center;padding:24px 0">No se encontraron ítems para este pedido.</p>';
-      return;
-    }
-    let total = 0;
-    const filas = items.map(it => {
-      const art = it['ARTÍCULO'] || it['ARTICULO'] || '—';
-      const color = it['COLOR'] || '—';
-      const talle = it['TALLE'] || '—';
-      const cant = parseFloat(it['CANTIDAD'] || 1);
-      const precio = parseFloat(it['PRECIO'] || 0);
-      const subtotal = cant * precio;
-      total += subtotal;
-      return `<tr><td class="art">${art}</td><td>${color}</td><td style="text-align:center">${talle}</td><td style="text-align:center">${cant}</td><td class="price">${precio > 0 ? fmt(precio) : '—'}</td><td class="price">${subtotal > 0 ? fmt(subtotal) : '—'}</td></tr>`;
-    }).join('');
-    $('modal-body').innerHTML = `
-      <table class="items-table">
-        <thead><tr><th>Artículo</th><th>Color</th><th style="text-align:center">Talle</th><th style="text-align:center">Cant.</th><th style="text-align:right">Precio u.</th><th style="text-align:right">Subtotal</th></tr></thead>
-        <tbody>${filas}${total > 0 ? `<tr class="total-row"><td colspan="4"></td><td style="text-align:right;font-size:12px;color:var(--ink2)">TOTAL</td><td class="price">${fmt(total)}</td></tr>` : ''}</tbody>
-      </table>
-      <p class="modal-tip">Tocá fuera del panel para cerrar</p>`;
-  } catch(e) {
-    $('modal-body').innerHTML = '<p style="color:var(--red);font-size:13px;text-align:center;padding:24px 0">Error al cargar los ítems.</p>';
-  }
+  try{
+    const items=await fetchPedidoItems(facturaNum);
+    if(!items.length){$('modal-body').innerHTML='<p style="color:var(--ink2);font-size:13px;text-align:center;padding:24px 0">No se encontraron ítems para este pedido.</p>';return;}
+    let total=0;
+    const filas=items.map(it=>{const art=it['ARTÍCULO']||it['ARTICULO']||'—',color=it['COLOR']||'—',talle=it['TALLE']||'—',cant=parseFloat(it['CANTIDAD']||1),precio=parseFloat(it['PRECIO']||0),subtotal=cant*precio;total+=subtotal;return`<tr><td class="art">${art}</td><td>${color}</td><td style="text-align:center">${talle}</td><td style="text-align:center">${cant}</td><td class="price">${precio>0?fmt(precio):'—'}</td><td class="price">${subtotal>0?fmt(subtotal):'—'}</td></tr>`;}).join('');
+    $('modal-body').innerHTML=`<table class="items-table"><thead><tr><th>Artículo</th><th>Color</th><th style="text-align:center">Talle</th><th style="text-align:center">Cant.</th><th style="text-align:right">Precio u.</th><th style="text-align:right">Subtotal</th></tr></thead><tbody>${filas}${total>0?`<tr class="total-row"><td colspan="4"></td><td style="text-align:right;font-size:12px;color:var(--ink2)">TOTAL</td><td class="price">${fmt(total)}</td></tr>`:''}</tbody></table><p class="modal-tip">Tocá fuera del panel para cerrar</p>`;
+  }catch(e){$('modal-body').innerHTML='<p style="color:var(--red);font-size:13px;text-align:center;padding:24px 0">Error al cargar los ítems.</p>';}
 }
+function closeModal(e){if(e.target===$('modal-overlay'))closeModalDirect();}
+function closeModalDirect(){$('modal-overlay').classList.remove('open');isModalOpen=false;}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&isModalOpen)closeModalDirect();});
 
-function closeModal(e) { if (e.target === $('modal-overlay')) closeModalDirect(); }
-function closeModalDirect() { $('modal-overlay').classList.remove('open'); isModalOpen = false; }
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && isModalOpen) closeModalDirect(); });
-
-async function loginCliente() {
-  const nombre = $('login-nombre').value.trim().toUpperCase();
-  const pin = $('login-pin').value.trim();
-  if (!nombre || !pin) return;
-  $('login-error').style.display = 'none';
-  try {
-    const clientes = await fetchSheet('CLIENTES!A:F');
-    const cliente = clientes.find(c => c['CLIENTE'] && c['CLIENTE'].toString().toUpperCase() === nombre && c['PIN'] && c['PIN'].toString() === pin);
-    if (!cliente) { $('login-error').textContent = 'Usuario o PIN incorrecto.'; $('login-error').style.display = 'block'; return; }
-    const { movs } = await getMovimientos();
-    const misMovs = movs.filter(m => m['CLIENTE'].toString().toUpperCase() === nombre);
-    currentUser = { tipo: 'cliente', nombre: cliente['CLIENTE'] };
-    showApp('cliente');
-    renderMovimientosCliente(misMovs);
-    startRefresh();
-  } catch(e) { $('login-error').textContent = 'Error de conexión. Intentá de nuevo.'; $('login-error').style.display = 'block'; }
+async function loginCliente(){
+  const nombre=$('login-nombre').value.trim().toUpperCase(),pin=$('login-pin').value.trim();
+  if(!nombre||!pin)return;$('login-error').style.display='none';
+  try{const clientes=await fetchSheet('CLIENTES!A:F');const cliente=clientes.find(c=>c['CLIENTE']&&c['CLIENTE'].toString().toUpperCase()===nombre&&c['PIN']&&c['PIN'].toString()===pin);
+    if(!cliente){$('login-error').textContent='Usuario o PIN incorrecto.';$('login-error').style.display='block';return;}
+    const{movs}=await getMovimientos();const misMovs=movs.filter(m=>m['CLIENTE'].toString().toUpperCase()===nombre);
+    currentUser={tipo:'cliente',nombre:cliente['CLIENTE']};showApp('cliente');renderMovimientosCliente(misMovs);startRefresh();
+  }catch(e){$('login-error').textContent='Error de conexión. Intentá de nuevo.';$('login-error').style.display='block';}
 }
-
-async function loginAdmin() {
-  const pass = $('login-admin-pass').value;
-  const hash = await sha256(pass);
-  if (hash !== ADMIN_HASH) { $('login-error').textContent = 'Contraseña incorrecta.'; $('login-error').style.display = 'block'; return; }
-  currentUser = { tipo: 'admin', nombre: 'Admin PMK' };
-  showApp('admin');
-  cargarAdmin();
-  startRefresh();
+async function loginAdmin(){
+  const pass=$('login-admin-pass').value,hash=await sha256(pass);
+  if(hash!==ADMIN_HASH){$('login-error').textContent='Contraseña incorrecta.';$('login-error').style.display='block';return;}
+  currentUser={tipo:'admin',nombre:'Admin PMK'};showApp('admin');cargarAdmin();startRefresh();
 }
+function showApp(tipo){$('login-screen').style.display='none';$('app').style.display='block';$('topbar-user').textContent=currentUser.nombre;$('refresh-indicator').style.display='flex';$('view-cliente').style.display=tipo==='cliente'?'':'none';$('view-admin').style.display=tipo==='admin'?'':'none';}
+function logout(){stopRefresh();currentUser=null;isModalOpen=false;$('modal-overlay').classList.remove('open');$('login-screen').style.display='flex';$('app').style.display='none';$('refresh-indicator').style.display='none';$('login-nombre').value='';$('login-pin').value='';$('login-admin-pass').value='';$('login-error').style.display='none';}
 
-function showApp(tipo) {
-  $('login-screen').style.display = 'none';
-  $('app').style.display = 'block';
-  $('topbar-user').textContent = currentUser.nombre;
-  $('refresh-indicator').style.display = 'flex';
-  $('view-cliente').style.display = tipo === 'cliente' ? '' : 'none';
-  $('view-admin').style.display = tipo === 'admin' ? '' : 'none';
-}
-
-function logout() {
-  stopRefresh(); currentUser = null; isModalOpen = false;
-  $('modal-overlay').classList.remove('open');
-  $('login-screen').style.display = 'flex'; $('app').style.display = 'none';
-  $('refresh-indicator').style.display = 'none';
-  $('login-nombre').value = ''; $('login-pin').value = ''; $('login-admin-pass').value = '';
-  $('login-error').style.display = 'none';
-}
-
-function startRefresh() { stopRefresh(); refreshTimer = setInterval(silentRefresh, REFRESH_INTERVAL); }
-function stopRefresh() { if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; } }
-
-async function silentRefresh() {
-  if (!currentUser) return;
-  try {
-    if (currentUser.tipo === 'cliente') {
-      const { movs } = await getMovimientos();
-      const misMovs = movs.filter(m => m['CLIENTE'].toString().toUpperCase() === currentUser.nombre.toUpperCase());
-      renderMovimientosClienteSilent(misMovs);
-      actualizarSummary(misMovs, 'sum-debe', 'sum-haber', 'sum-saldo');
-    } else {
-      const activeTab = document.querySelector('.admin-tab.active');
-      const tabIdx = [...document.querySelectorAll('.admin-tab')].indexOf(activeTab);
-      if (tabIdx === 0) { await silentRefreshAdmin(); }
-      else if (tabIdx === 3) {
-        const nombre = $('historial-cliente').value;
-        if (nombre) {
-          const { movs } = await getMovimientos();
-          const clienteMovs = movs.filter(m => m['CLIENTE'].toString().trim() === nombre);
-          actualizarSummary(clienteMovs, 'admin-sum-debe', 'admin-sum-haber', 'admin-sum-saldo');
-          renderMovimientosSilent(clienteMovs, 'admin-tbody');
-        }
-      }
-    }
+function startRefresh(){stopRefresh();refreshTimer=setInterval(silentRefresh,REFRESH_INTERVAL);}
+function stopRefresh(){if(refreshTimer){clearInterval(refreshTimer);refreshTimer=null;}}
+async function silentRefresh(){
+  if(!currentUser)return;
+  try{
+    if(currentUser.tipo==='cliente'){const{movs}=await getMovimientos();const misMovs=movs.filter(m=>m['CLIENTE'].toString().toUpperCase()===currentUser.nombre.toUpperCase());if(!isModalOpen)renderMovimientos(misMovs,'client-tbody');actualizarSummary(misMovs,'sum-debe','sum-haber','sum-saldo');}
+    else{const activeTab=document.querySelector('.admin-tab.active');const tabIdx=[...document.querySelectorAll('.admin-tab')].indexOf(activeTab);if(tabIdx===0){await silentRefreshAdmin();}else if(tabIdx===4){const nombre=$('historial-cliente').value;if(nombre){const{movs}=await getMovimientos();const cm=movs.filter(m=>m['CLIENTE'].toString().trim()===nombre);actualizarSummary(cm,'admin-sum-debe','admin-sum-haber','admin-sum-saldo');if(!isModalOpen)renderMovimientos(cm,'admin-tbody');}}}
     pulseRefreshDot();
-  } catch(e) {}
+  }catch(e){}
 }
+async function silentRefreshAdmin(){const{movs,clientes}=await getMovimientos();const cards=$('admin-client-cards');if(cards.style.display==='none')return;cards.innerHTML='';clientes.forEach(nombre=>{const mc=movs.filter(m=>m['CLIENTE'].toString().trim()===nombre);const debe=mc.reduce((a,m)=>a+parseFloat(m['DEBE']||0),0);const haber=mc.reduce((a,m)=>a+parseFloat(m['HABER']||0),0);const card=document.createElement('div');card.className='client-card';card.innerHTML=`<div class="name">${nombre}</div><div class="saldo-label">Saldo pendiente</div><div class="saldo-val">${fmt(debe-haber)}</div>`;card.onclick=()=>verCuentaCliente(nombre);cards.appendChild(card);});}
+function pulseRefreshDot(){const dot=$('refresh-dot');dot.classList.remove('pulse');void dot.offsetWidth;dot.classList.add('pulse');const now=new Date();$('refresh-label').textContent=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;}
 
-async function silentRefreshAdmin() {
-  const { movs, clientes } = await getMovimientos();
-  const cards = $('admin-client-cards');
-  if (cards.style.display === 'none') return;
-  cards.innerHTML = '';
-  clientes.forEach(nombre => {
-    const mc = movs.filter(m => m['CLIENTE'].toString().trim() === nombre);
-    const debe = mc.reduce((a,m) => a + parseFloat(m['DEBE']||0), 0);
-    const haber = mc.reduce((a,m) => a + parseFloat(m['HABER']||0), 0);
-    const card = document.createElement('div');
-    card.className = 'client-card';
-    card.innerHTML = `<div class="name">${nombre}</div><div class="saldo-label">Saldo pendiente</div><div class="saldo-val">${fmt(debe-haber)}</div>`;
-    card.onclick = () => verCuentaCliente(nombre);
-    cards.appendChild(card);
-  });
-}
+function parseFecha(f){if(!f)return 0;const s=f.toString(),parts=s.split('/');if(parts.length===3)return new Date(parts[2],parts[1]-1,parts[0]).getTime();return new Date(s).getTime();}
+function buildRows(movs){let saldoAcum=0;return[...movs].sort((a,b)=>parseFecha(a['FECHA'])-parseFecha(b['FECHA'])).map(m=>{const debe=parseFloat(m['DEBE']||0),haber=parseFloat(m['HABER']||0);saldoAcum+=debe-haber;const tipo=(m['TIPO']||'').toString().toUpperCase(),numero=m['NUMERO']?m['NUMERO'].toString():'';const esNotaPedido=tipo==='NOTA DE PEDIDO'||tipo==='PEDIDO'||tipo==='';const esNC=tipo==='NOTA DE CREDITO'||tipo==='NOTA DE CRÉDITO'||tipo==='NC';let badgeClass='badge-pedido',label='Nota de pedido';if(tipo==='RECIBO'){badgeClass='badge-recibo';label='Recibo';}else if(tipo==='CARGO'){badgeClass='badge-cargo';label=m['OBSERVACION']||'Cargo';}else if(esNC){badgeClass='badge-nota-credito';label='Nota de crédito';}const clickable=esNotaPedido&&numero;return{m,debe,haber,saldoAcum,badgeClass,label,clickable,docLabel:numero?`NP-${numero}`:'—',numero};});}
+function renderMovimientos(movs,tbodyId){const tbody=$(tbodyId);tbody.innerHTML='';buildRows(movs).forEach(({m,debe,haber,saldoAcum,badgeClass,label,clickable,docLabel,numero})=>{const tr=document.createElement('tr');if(clickable)tr.className='clickable-row';tr.innerHTML=`<td class="mono">${m['FECHA']||'—'}</td><td><span class="badge ${badgeClass}">${label}</span></td><td class="mono">${docLabel}</td><td class="amount-debe">${debe>0?fmt(debe):'—'}</td><td class="amount-haber">${haber>0?fmt(haber):'—'}</td><td class="saldo-acum" style="color:${saldoAcum>0?'var(--red)':'var(--green)'}">${fmt(saldoAcum)}</td>`;if(clickable)tr.onclick=()=>openItemsModal(numero,m['FECHA']||'—',m['CLIENTE']||'');tbody.appendChild(tr);});}
+function actualizarSummary(movs,debeId,haberId,saldoId){const td=movs.reduce((a,m)=>a+parseFloat(m['DEBE']||0),0),th=movs.reduce((a,m)=>a+parseFloat(m['HABER']||0),0);$(debeId).textContent=fmt(td);$(haberId).textContent=fmt(th);$(saldoId).textContent=fmt(td-th);}
+function renderMovimientosCliente(movs){$('client-loading').style.display='none';if(!movs.length){$('client-empty').style.display='block';actualizarSummary([],'sum-debe','sum-haber','sum-saldo');return;}renderMovimientos(movs,'client-tbody');$('client-table').style.display='table';actualizarSummary(movs,'sum-debe','sum-haber','sum-saldo');}
 
-function pulseRefreshDot() {
-  const dot = $('refresh-dot');
-  dot.classList.remove('pulse'); void dot.offsetWidth; dot.classList.add('pulse');
-  const now = new Date();
-  $('refresh-label').textContent = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-}
-
-function parseFecha(f) {
-  if (!f) return 0;
-  const s = f.toString(), parts = s.split('/');
-  if (parts.length === 3) return new Date(parts[2], parts[1]-1, parts[0]).getTime();
-  return new Date(s).getTime();
-}
-
-function buildRows(movs) {
-  let saldoAcum = 0;
-  return [...movs].sort((a,b) => parseFecha(a['FECHA']) - parseFecha(b['FECHA'])).map(m => {
-    const debe = parseFloat(m['DEBE'] || 0), haber = parseFloat(m['HABER'] || 0);
-    saldoAcum += debe - haber;
-    const tipo = (m['TIPO'] || '').toString().toUpperCase();
-    const numero = m['NUMERO'] ? m['NUMERO'].toString() : '';
-    const esNotaPedido = tipo === 'NOTA DE PEDIDO' || tipo === 'PEDIDO' || tipo === '';
-    const esNotaCredito = tipo === 'NOTA DE CREDITO' || tipo === 'NOTA DE CRÉDITO' || tipo === 'NC';
-    let badgeClass = 'badge-pedido', label = 'Nota de pedido';
-    if (tipo === 'RECIBO') { badgeClass = 'badge-recibo'; label = 'Recibo'; }
-    else if (tipo === 'CARGO') { badgeClass = 'badge-cargo'; label = m['OBSERVACION'] || 'Cargo'; }
-    else if (esNotaCredito) { badgeClass = 'badge-nota-credito'; label = 'Nota de crédito'; }
-    const clickable = esNotaPedido && numero;
-    return { m, debe, haber, saldoAcum, badgeClass, label, clickable, docLabel: numero ? `NP-${numero}` : '—', numero };
-  });
-}
-
-function renderMovimientos(movs, tbodyId) {
-  const tbody = $(tbodyId);
-  tbody.innerHTML = '';
-  buildRows(movs).forEach(({ m, debe, haber, saldoAcum, badgeClass, label, clickable, docLabel, numero }) => {
-    const tr = document.createElement('tr');
-    if (clickable) tr.className = 'clickable-row';
-    tr.innerHTML = `<td class="mono">${m['FECHA'] || '—'}</td><td><span class="badge ${badgeClass}">${label}</span></td><td class="mono">${docLabel}</td><td class="amount-debe">${debe > 0 ? fmt(debe) : '—'}</td><td class="amount-haber">${haber > 0 ? fmt(haber) : '—'}</td><td class="saldo-acum" style="color:${saldoAcum > 0 ? 'var(--red)' : 'var(--green)'}">${fmt(saldoAcum)}</td>`;
-    if (clickable) tr.onclick = () => openItemsModal(numero, m['FECHA'] || '—', m['CLIENTE'] || '');
-    tbody.appendChild(tr);
-  });
-}
-
-function renderMovimientosSilent(movs, tbodyId) { if (isModalOpen) return; renderMovimientos(movs, tbodyId); }
-
-function actualizarSummary(movs, debeId, haberId, saldoId) {
-  const td = movs.reduce((a,m) => a + parseFloat(m['DEBE']||0), 0);
-  const th = movs.reduce((a,m) => a + parseFloat(m['HABER']||0), 0);
-  $(debeId).textContent = fmt(td); $(haberId).textContent = fmt(th); $(saldoId).textContent = fmt(td - th);
-}
-
-function renderMovimientosCliente(movs) {
-  $('client-loading').style.display = 'none';
-  if (!movs.length) { $('client-empty').style.display = 'block'; actualizarSummary([], 'sum-debe', 'sum-haber', 'sum-saldo'); return; }
-  renderMovimientos(movs, 'client-tbody');
-  $('client-table').style.display = 'table';
-  actualizarSummary(movs, 'sum-debe', 'sum-haber', 'sum-saldo');
-}
-
-function renderMovimientosClienteSilent(movs) {
-  if (!$('client-table') || $('client-table').style.display === 'none') return;
-  renderMovimientosSilent(movs, 'client-tbody');
-}
-
-async function cargarAdmin() {
-  try {
-    const { movs, clientes } = await getMovimientos();
-    $('admin-loading').style.display = 'none';
-    const cards = $('admin-client-cards');
-    cards.style.display = 'grid'; cards.innerHTML = '';
-    clientes.forEach(nombre => {
-      const mc = movs.filter(m => m['CLIENTE'].toString().trim() === nombre);
-      const debe = mc.reduce((a,m) => a + parseFloat(m['DEBE']||0), 0);
-      const haber = mc.reduce((a,m) => a + parseFloat(m['HABER']||0), 0);
-      const card = document.createElement('div');
-      card.className = 'client-card';
-      card.innerHTML = `<div class="name">${nombre}</div><div class="saldo-label">Saldo pendiente</div><div class="saldo-val">${fmt(debe-haber)}</div>`;
-      card.onclick = () => verCuentaCliente(nombre);
-      cards.appendChild(card);
-    });
-    ['recibo-cliente','cargo-cliente','historial-cliente'].forEach(sid => {
-      const sel = $(sid), first = sel.options[0];
-      sel.innerHTML = ''; sel.appendChild(first);
-      clientes.forEach(nombre => { const opt = document.createElement('option'); opt.value = nombre; opt.textContent = nombre; sel.appendChild(opt); });
-    });
+async function cargarAdmin(){
+  try{const{movs,clientes}=await getMovimientos();$('admin-loading').style.display='none';const cards=$('admin-client-cards');cards.style.display='grid';cards.innerHTML='';
+    clientes.forEach(nombre=>{const mc=movs.filter(m=>m['CLIENTE'].toString().trim()===nombre);const debe=mc.reduce((a,m)=>a+parseFloat(m['DEBE']||0),0);const haber=mc.reduce((a,m)=>a+parseFloat(m['HABER']||0),0);const card=document.createElement('div');card.className='client-card';card.innerHTML=`<div class="name">${nombre}</div><div class="saldo-label">Saldo pendiente</div><div class="saldo-val">${fmt(debe-haber)}</div>`;card.onclick=()=>verCuentaCliente(nombre);cards.appendChild(card);});
+    ['recibo-cliente','cargo-cliente','nc-cliente','historial-cliente'].forEach(sid=>{const sel=$(sid),first=sel.options[0];sel.innerHTML='';sel.appendChild(first);clientes.forEach(nombre=>{const opt=document.createElement('option');opt.value=nombre;opt.textContent=nombre;sel.appendChild(opt);});});
     pulseRefreshDot();
-  } catch(e) { $('admin-loading').innerHTML = '<p style="color:var(--red)">Error al cargar datos.</p>'; }
+  }catch(e){$('admin-loading').innerHTML='<p style="color:var(--red)">Error al cargar datos.</p>';}
 }
+function verCuentaCliente(nombre){document.querySelectorAll('.admin-tab').forEach((t,i)=>t.classList.toggle('active',i===4));['resumen','recibo','cargo','nc'].forEach(t=>$(`admin-${t}`).style.display='none');$('admin-historial').style.display='';$('historial-cliente').value=nombre;cargarHistorial();}
+function adminTab(tab,btn){document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');['resumen','recibo','cargo','nc','historial'].forEach(t=>$(`admin-${t}`).style.display=t===tab?'':'none');}
+async function cargarHistorial(){const nombre=$('historial-cliente').value;if(!nombre){$('admin-summary').style.display='none';$('admin-table-wrap').style.display='none';return;}try{const{movs}=await getMovimientos();const cm=movs.filter(m=>m['CLIENTE'].toString().trim()===nombre);$('admin-summary').style.display='grid';$('admin-table-wrap').style.display='';actualizarSummary(cm,'admin-sum-debe','admin-sum-haber','admin-sum-saldo');renderMovimientos(cm,'admin-tbody');}catch(e){console.error(e);}}
 
-function verCuentaCliente(nombre) {
-  document.querySelectorAll('.admin-tab').forEach((t,i) => t.classList.toggle('active', i===3));
-  ['resumen','recibo','cargo'].forEach(t => $(`admin-${t}`).style.display = 'none');
-  $('admin-historial').style.display = '';
-  $('historial-cliente').value = nombre;
-  cargarHistorial();
-}
+async function guardarRecibo(){const cliente=$('recibo-cliente').value,monto=parseFloat($('recibo-monto').value),obs=$('recibo-obs').value.trim();if(!cliente||!monto||monto<=0)return;$('btn-recibo').disabled=true;$('recibo-ok').style.display='none';$('recibo-err').style.display='none';try{const{movs}=await getMovimientos();const recibos=movs.filter(m=>m['CLIENTE'].toString().trim()===cliente&&(m['TIPO']||'').toUpperCase()==='RECIBO');await escribirMovimiento(today(),cliente,'RECIBO',`REC-${recibos.length+1}`,0,monto,obs);$('recibo-ok').style.display='block';$('recibo-monto').value='';$('recibo-obs').value='';}catch(e){$('recibo-err').textContent='Error al registrar.';$('recibo-err').style.display='block';}finally{$('btn-recibo').disabled=false;}}
+async function guardarCargo(){const cliente=$('cargo-cliente').value,monto=parseFloat($('cargo-monto').value),concepto=$('cargo-concepto').value.trim();if(!cliente||!monto||monto<=0||!concepto)return;$('btn-cargo').disabled=true;$('cargo-ok').style.display='none';$('cargo-err').style.display='none';try{await escribirMovimiento(today(),cliente,'CARGO','',monto,0,concepto);$('cargo-ok').style.display='block';$('cargo-monto').value='';$('cargo-concepto').value='';}catch(e){$('cargo-err').textContent='Error al registrar.';$('cargo-err').style.display='block';}finally{$('btn-cargo').disabled=false;}}
+async function guardarNC(){const cliente=$('nc-cliente').value,monto=parseFloat($('nc-monto').value),obs=$('nc-obs').value.trim();if(!cliente||!monto||monto<=0)return;$('btn-nc').disabled=true;$('nc-ok').style.display='none';$('nc-err').style.display='none';try{await escribirMovimiento(today(),cliente,'NOTA DE CREDITO','',0,monto,obs);$('nc-ok').style.display='block';$('nc-monto').value='';$('nc-obs').value='';}catch(e){$('nc-err').textContent='Error al registrar.';$('nc-err').style.display='block';}finally{$('btn-nc').disabled=false;}}
+async function escribirMovimiento(fecha,cliente,tipo,numero,debe,haber,obs){const params=new URLSearchParams({action:'write',sheetId:SHEET_ID,sheet:'MOVIMIENTOS',row:JSON.stringify([fecha,'',cliente,tipo,numero,debe,haber,obs])});const res=await fetch(APPS_SCRIPT_URL+'?'+params.toString());const data=await res.json();if(!data.ok)throw new Error(data.error||'error');}
 
-function adminTab(tab, btn) {
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  if (btn) btn.classList.add('active');
-  ['resumen','recibo','cargo','historial'].forEach(t => $(`admin-${t}`).style.display = t === tab ? '' : 'none');
-}
-
-async function cargarHistorial() {
-  const nombre = $('historial-cliente').value;
-  if (!nombre) { $('admin-summary').style.display = 'none'; $('admin-table-wrap').style.display = 'none'; return; }
-  try {
-    const { movs } = await getMovimientos();
-    const clienteMovs = movs.filter(m => m['CLIENTE'].toString().trim() === nombre);
-    $('admin-summary').style.display = 'grid'; $('admin-table-wrap').style.display = '';
-    actualizarSummary(clienteMovs, 'admin-sum-debe', 'admin-sum-haber', 'admin-sum-saldo');
-    renderMovimientos(clienteMovs, 'admin-tbody');
-  } catch(e) { console.error(e); }
-}
-
-async function guardarRecibo() {
-  const cliente = $('recibo-cliente').value, monto = parseFloat($('recibo-monto').value), obs = $('recibo-obs').value.trim();
-  if (!cliente || !monto || monto <= 0) return;
-  $('btn-recibo').disabled = true; $('recibo-ok').style.display = 'none'; $('recibo-err').style.display = 'none';
-  try {
-    const { movs } = await getMovimientos();
-    const recibos = movs.filter(m => m['CLIENTE'].toString().trim() === cliente && (m['TIPO']||'').toUpperCase() === 'RECIBO');
-    await escribirMovimiento(today(), cliente, 'RECIBO', `REC-${recibos.length+1}`, 0, monto, obs);
-    $('recibo-ok').style.display = 'block'; $('recibo-monto').value = ''; $('recibo-obs').value = '';
-  } catch(e) { $('recibo-err').textContent = 'Error al registrar.'; $('recibo-err').style.display = 'block'; }
-  finally { $('btn-recibo').disabled = false; }
-}
-
-async function guardarCargo() {
-  const cliente = $('cargo-cliente').value, monto = parseFloat($('cargo-monto').value), concepto = $('cargo-concepto').value.trim();
-  if (!cliente || !monto || monto <= 0 || !concepto) return;
-  $('btn-cargo').disabled = true; $('cargo-ok').style.display = 'none'; $('cargo-err').style.display = 'none';
-  try {
-    await escribirMovimiento(today(), cliente, 'CARGO', '', monto, 0, concepto);
-    $('cargo-ok').style.display = 'block'; $('cargo-monto').value = ''; $('cargo-concepto').value = '';
-  } catch(e) { $('cargo-err').textContent = 'Error al registrar.'; $('cargo-err').style.display = 'block'; }
-  finally { $('btn-cargo').disabled = false; }
-}
-
-async function escribirMovimiento(fecha, cliente, tipo, numero, debe, haber, obs) {
-  const params = new URLSearchParams({ action: 'write', sheetId: SHEET_ID, sheet: 'MOVIMIENTOS', row: JSON.stringify([fecha, '', cliente, tipo, numero, debe, haber, obs]) });
-  const res = await fetch(APPS_SCRIPT_URL + '?' + params.toString());
-  const data = await res.json();
-  if (!data.ok) throw new Error(data.error || 'error');
-}
-
-document.addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  if (isModalOpen) return;
-  if ($('login-admin').style.display !== 'none') loginAdmin();
-  else loginCliente();
-});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;if(isModalOpen)return;if($('login-admin').style.display!=='none')loginAdmin();else loginCliente();});
 </script>
 </body>
 </html>
