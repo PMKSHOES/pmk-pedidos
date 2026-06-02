@@ -423,7 +423,7 @@ function autoCropToContent(canvas, threshold, paddingPx) {
   const ctx = canvas.getContext("2d");
   const w = canvas.width,
     h = canvas.height;
-  const scanH = Math.floor(h * 0.78);
+  const scanH = h;
   let imgData;
   try {
     imgData = ctx.getImageData(0, 0, w, scanH);
