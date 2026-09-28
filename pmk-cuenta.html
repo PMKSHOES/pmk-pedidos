@@ -106,6 +106,20 @@
   .items-table .price { font-family:'DM Mono',monospace; text-align:right; }
   .items-table .total-row td { padding-top:14px; font-weight:600; border-top:1.5px solid var(--border); border-bottom:none; }
   .modal-tip { font-size:11px; color:var(--ink2); margin-top:14px; text-align:center; }
+  .section-hint { font-size:13px; color:var(--ink2); margin:-8px 0 16px; line-height:1.45; }
+  .pend-check { width:40px; text-align:center; }
+  .pend-check input { width:18px; height:18px; accent-color:var(--green); cursor:pointer; }
+  .pend-check input:disabled { cursor:wait; }
+  tr.pend-row td { cursor:pointer; }
+  tr.pend-row:hover td { background:#FEF3EE; }
+  tr.pend-row td.pend-check { cursor:default; }
+  tr.pend-done td { background:#EEF6F0; }
+  tr.pend-done:hover td { background:#E4F0E7; }
+  .pend-status { font-size:12px; color:var(--green); font-weight:600; }
+  .pend-status.err { color:var(--red); }
+  .pend-parcial { font-size:11px; color:var(--ink2); }
+  .btn-link { background:none; border:none; color:var(--ink2); text-decoration:underline; font-size:12px; cursor:pointer; font-family:'DM Sans',sans-serif; padding:0 0 0 8px; }
+  .btn-link:hover { color:var(--accent); }
   @media (max-width:640px) {
     .summary-cards { grid-template-columns:1fr; }
     .form-row { grid-template-columns:1fr; }
@@ -115,6 +129,8 @@
     .admin-tabs { flex-wrap:wrap; width:100%; }
     .admin-tab { flex:1; min-width:80px; text-align:center; font-size:11px; padding:8px 6px; }
     th:nth-child(5), td:nth-child(5) { display:none; }
+    #pend-table th:nth-child(5), #pend-table td:nth-child(5) { display:table-cell; }
+    #pend-table th:nth-child(3), #pend-table td:nth-child(3) { display:none; }
     .refresh-indicator span { display:none; }
   }
 </style>
@@ -189,13 +205,30 @@
       <div class="form-card">
         <h3>Nuevo recibo de pago</h3>
         <div class="form-row">
-          <div class="form-field"><label>Cliente</label><select id="recibo-cliente"><option value="">— Seleccioná —</option></select></div>
+          <div class="form-field"><label>Cliente</label><select id="recibo-cliente" onchange="cargarPanelRecibo()"><option value="">— Seleccioná —</option></select></div>
           <div class="form-field"><label>Importe ($)</label><input type="number" id="recibo-monto" placeholder="0"></div>
         </div>
         <div class="form-row single"><div class="form-field"><label>Observación (opcional)</label><input type="text" id="recibo-obs" placeholder="Transferencia, efectivo, etc."></div></div>
         <button class="btn-submit" onclick="guardarRecibo()" id="btn-recibo">Registrar recibo</button>
         <div class="success-msg" id="recibo-ok">✓ Recibo registrado.</div>
         <div class="error-msg" id="recibo-err"></div>
+      </div>
+      <div id="recibo-panel" style="display:none">
+        <div class="summary-cards">
+          <div class="summary-card"><div class="label">Total facturado</div><div class="value" id="rec-sum-debe">—</div></div>
+          <div class="summary-card pagado"><div class="label">Total pagado</div><div class="value" id="rec-sum-haber">—</div></div>
+          <div class="summary-card saldo"><div class="label">Saldo pendiente</div><div class="value" id="rec-sum-saldo">—</div></div>
+        </div>
+        <div class="section-title">Notas de pedido sin seña</div>
+        <p class="section-hint">Tildá la nota de pedido que cubre el recibo: se marca la X en la columna SEÑA de todos sus artículos en la planilla. Tocá la fila para ver los artículos.</p>
+        <div class="table-wrap">
+          <div class="loading" id="pend-loading"><div class="spinner"></div>Buscando notas de pedido...</div>
+          <table id="pend-table" style="display:none">
+            <thead><tr><th class="pend-check">✓</th><th>Fecha</th><th>Concepto</th><th>N° Doc</th><th>Importe</th><th>Artículos</th></tr></thead>
+            <tbody id="pend-tbody"></tbody>
+          </table>
+          <div class="empty" id="pend-empty" style="display:none">Este cliente no tiene notas de pedido pendientes de seña.</div>
+        </div>
       </div>
     </div>
 
@@ -268,9 +301,20 @@ let currentUser=null,refreshTimer=null,isModalOpen=false;
 
 async function sha256(str){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
 function setLoginMode(mode){document.querySelectorAll('.login-tab').forEach(t=>t.classList.remove('active'));event.target.classList.add('active');$('login-cliente').style.display=mode==='cliente'?'':'none';$('login-admin').style.display=mode==='admin'?'':'none';$('login-error').style.display='none';}
-async function fetchSheet(range){const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&range=${encodeURIComponent(range)}&headers=1`;const res=await fetch(url);const text=await res.text();const json=JSON.parse(text.replace(/^[^(]+\(/,'').replace(/\);\s*$/,''));const cols=json.table.cols.map(c=>c.label);return(json.table.rows||[]).map(r=>{const obj={};r.c.forEach((cell,i)=>{obj[cols[i]]=cell?cell.v:'';});return obj;});}
-async function getMovimientos(){const movs=await fetchSheet('MOVIMIENTOS!A:H');const validos=movs.filter(m=>m['CLIENTE']&&m['CLIENTE'].toString().trim()!=='');const unicos=[...new Set(validos.map(m=>m['CLIENTE'].toString().trim()))].sort();return{movs:validos,clientes:unicos};}
-async function fetchPedidoItems(facturaNum){const rows=await fetchSheet('PEDIDOS!A:R');return rows.filter(r=>String(r['FACTURA #']||r['FACTURA']||'').trim()===String(facturaNum).trim());}
+// Valor de una celda del feed de Sheets. Las fechas llegan como "Date(2026,8,28)":
+// se pasan a dd/mm/aaaa. Si el valor viene vacío pero hay texto formateado, se usa ese.
+function cellVal(cell){if(!cell)return'';const v=cell.v;if(typeof v==='string'){const m=v.match(/^Date\((\d+),(\d+),(\d+)/);if(m)return`${m[3].padStart(2,'0')}/${String(+m[2]+1).padStart(2,'0')}/${m[1]}`;}if((v===null||v===undefined||v==='')&&cell.f)return cell.f;return(v===null||v===undefined)?'':v;}
+// El parámetro _ evita que el navegador o Google devuelvan datos viejos.
+async function fetchSheet(range){const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&range=${encodeURIComponent(range)}&headers=1&_=${Date.now()}`;const res=await fetch(url,{cache:'no-store'});const text=await res.text();const json=JSON.parse(text.replace(/^[^(]+\(/,'').replace(/\);\s*$/,''));const cols=json.table.cols.map(c=>c.label);return(json.table.rows||[]).map((r,idx)=>{const obj={_i:idx};r.c.forEach((cell,i)=>{obj[cols[i]]=cellVal(cell);});return obj;});}
+const normNum=v=>{if(v===null||v===undefined)return'';if(typeof v==='number')return String(Math.round(v));return String(v).trim().replace(/\.0+$/,'');};
+// Movimientos que acabamos de grabar pero que la planilla todavía no devuelve
+// (tarda unos segundos): se muestran igual para que el saldo se actualice al instante.
+let localPend=[];
+const movKey=m=>[String(m['CLIENTE']||'').trim(),String(m['TIPO']||'').toUpperCase(),normNum(m['NUMERO']),Number(m['DEBE']||0),Number(m['HABER']||0)].join('|');
+async function getMovimientos(){const movs=await fetchSheet('MOVIMIENTOS!A:H');let validos=movs.filter(m=>m['CLIENTE']&&m['CLIENTE'].toString().trim()!=='');const enPlanilla=new Set(validos.map(movKey));localPend=localPend.filter(p=>!enPlanilla.has(movKey(p))&&Date.now()-p._t<5*60000);const base=validos.length;validos=validos.concat(localPend.map((p,k)=>({...p,_i:base+k})));const unicos=[...new Set(validos.map(m=>m['CLIENTE'].toString().trim()))].sort();return{movs:validos,clientes:unicos};}
+let pedidosCache=null;
+async function getPedidos(force){if(!force&&pedidosCache&&Date.now()-pedidosCache.t<20000)return pedidosCache.rows;const rows=await fetchSheet('PEDIDOS!A:R');pedidosCache={t:Date.now(),rows};return rows;}
+async function fetchPedidoItems(facturaNum){const rows=await getPedidos();return rows.filter(r=>normNum(r['FACTURA #']||r['FACTURA'])===normNum(facturaNum));}
 
 async function openItemsModal(facturaNum,fecha,cliente){
   isModalOpen=true;$('modal-title').textContent=`NP-${facturaNum}`;$('modal-sub').textContent=`${cliente} · ${fecha}`;
@@ -311,15 +355,17 @@ async function silentRefresh(){
   if(!currentUser)return;
   try{
     if(currentUser.tipo==='cliente'){const{movs}=await getMovimientos();const misMovs=movs.filter(m=>m['CLIENTE'].toString().toUpperCase()===currentUser.nombre.toUpperCase());if(!isModalOpen)renderMovimientos(misMovs,'client-tbody');actualizarSummary(misMovs,'sum-debe','sum-haber','sum-saldo');}
-    else{const activeTab=document.querySelector('.admin-tab.active');const tabIdx=[...document.querySelectorAll('.admin-tab')].indexOf(activeTab);if(tabIdx===0){await silentRefreshAdmin();}else if(tabIdx===4){const nombre=$('historial-cliente').value;if(nombre){const{movs}=await getMovimientos();const cm=movs.filter(m=>m['CLIENTE'].toString().trim()===nombre);actualizarSummary(cm,'admin-sum-debe','admin-sum-haber','admin-sum-saldo');if(!isModalOpen)renderMovimientos(cm,'admin-tbody');}}}
+    else{const activeTab=document.querySelector('.admin-tab.active');const tabIdx=[...document.querySelectorAll('.admin-tab')].indexOf(activeTab);if(tabIdx===0){await silentRefreshAdmin();}else if(tabIdx===1){if($('recibo-cliente').value&&!marcandoSena&&!isModalOpen)await cargarPanelRecibo(true);}else if(tabIdx===4){const nombre=$('historial-cliente').value;if(nombre){const{movs}=await getMovimientos();const cm=movs.filter(m=>m['CLIENTE'].toString().trim()===nombre);actualizarSummary(cm,'admin-sum-debe','admin-sum-haber','admin-sum-saldo');if(!isModalOpen)renderMovimientos(cm,'admin-tbody');}}}
     pulseRefreshDot();
   }catch(e){}
 }
 async function silentRefreshAdmin(){const{movs,clientes}=await getMovimientos();const cards=$('admin-client-cards');if(cards.style.display==='none')return;cards.innerHTML='';clientes.forEach(nombre=>{const mc=movs.filter(m=>m['CLIENTE'].toString().trim()===nombre);const debe=mc.reduce((a,m)=>a+parseFloat(m['DEBE']||0),0);const haber=mc.reduce((a,m)=>a+parseFloat(m['HABER']||0),0);const card=document.createElement('div');card.className='client-card';card.innerHTML=`<div class="name">${nombre}</div><div class="saldo-label">Saldo pendiente</div><div class="saldo-val">${fmt(debe-haber)}</div>`;card.onclick=()=>verCuentaCliente(nombre);cards.appendChild(card);});}
 function pulseRefreshDot(){const dot=$('refresh-dot');dot.classList.remove('pulse');void dot.offsetWidth;dot.classList.add('pulse');const now=new Date();$('refresh-label').textContent=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;}
 
-function parseFecha(f){if(!f)return 0;const s=f.toString(),parts=s.split('/');if(parts.length===3)return new Date(parts[2],parts[1]-1,parts[0]).getTime();return new Date(s).getTime();}
-function buildRows(movs){let saldoAcum=0;return[...movs].sort((a,b)=>parseFecha(a['FECHA'])-parseFecha(b['FECHA'])).map(m=>{const debe=parseFloat(m['DEBE']||0),haber=parseFloat(m['HABER']||0);saldoAcum+=debe-haber;const tipo=(m['TIPO']||'').toString().toUpperCase(),numero=m['NUMERO']?m['NUMERO'].toString():'';const esNotaPedido=tipo==='NOTA DE PEDIDO'||tipo==='PEDIDO'||tipo==='';const esNC=tipo==='NOTA DE CREDITO'||tipo==='NOTA DE CRÉDITO'||tipo==='NC';let badgeClass='badge-pedido',label='Nota de pedido';if(tipo==='RECIBO'){badgeClass='badge-recibo';label='Recibo';}else if(tipo==='CARGO'){badgeClass='badge-cargo';label=m['OBSERVACION']||'Cargo';}else if(esNC){badgeClass='badge-nota-credito';label='Nota de crédito';}const clickable=esNotaPedido&&numero;return{m,debe,haber,saldoAcum,badgeClass,label,clickable,docLabel:numero?`NP-${numero}`:'—',numero};});}
+function parseFecha(f){if(!f)return 0;const s=f.toString(),parts=s.split('/');if(parts.length===3)return new Date(parts[2],parts[1]-1,parts[0]).getTime();const t=new Date(s).getTime();return isNaN(t)?0:t;}
+// El saldo acumulado se calcula de la fecha más vieja a la más nueva (como siempre),
+// y después se da vuelta la lista para mostrar lo más nuevo arriba.
+function buildRows(movs,newestFirst=true){let saldoAcum=0;const rows=[...movs].sort((a,b)=>(parseFecha(a['FECHA'])-parseFecha(b['FECHA']))||((a._i||0)-(b._i||0))).map(m=>{const debe=parseFloat(m['DEBE']||0),haber=parseFloat(m['HABER']||0);saldoAcum+=debe-haber;const tipo=(m['TIPO']||'').toString().trim().toUpperCase(),numero=normNum(m['NUMERO']);const esNotaPedido=tipo==='NOTA DE PEDIDO'||tipo==='PEDIDO'||tipo==='';const esNC=['NOTA DE CREDITO','NOTA DE CRÉDITO','NOTA CREDITO','NOTA CRÉDITO','NC'].includes(tipo);let badgeClass='badge-pedido',label='Nota de pedido';if(tipo==='RECIBO'){badgeClass='badge-recibo';label='Recibo';}else if(tipo==='CARGO'){badgeClass='badge-cargo';label=m['OBSERVACION']||'Cargo';}else if(esNC){badgeClass='badge-nota-credito';label='Nota de crédito';}const clickable=esNotaPedido&&numero;return{m,debe,haber,saldoAcum,badgeClass,label,clickable,docLabel:numero?(esNotaPedido?`NP-${numero}`:numero):'—',numero};});return newestFirst?rows.reverse():rows;}
 function renderMovimientos(movs,tbodyId){const tbody=$(tbodyId);tbody.innerHTML='';buildRows(movs).forEach(({m,debe,haber,saldoAcum,badgeClass,label,clickable,docLabel,numero})=>{const tr=document.createElement('tr');if(clickable)tr.className='clickable-row';tr.innerHTML=`<td class="mono">${m['FECHA']||'—'}</td><td><span class="badge ${badgeClass}">${label}</span></td><td class="mono">${docLabel}</td><td class="amount-debe">${debe>0?fmt(debe):'—'}</td><td class="amount-haber">${haber>0?fmt(haber):'—'}</td><td class="saldo-acum" style="color:${saldoAcum>0?'var(--red)':'var(--green)'}">${fmt(saldoAcum)}</td>`;if(clickable)tr.onclick=()=>openItemsModal(numero,m['FECHA']||'—',m['CLIENTE']||'');tbody.appendChild(tr);});}
 function actualizarSummary(movs,debeId,haberId,saldoId){const td=movs.reduce((a,m)=>a+parseFloat(m['DEBE']||0),0),th=movs.reduce((a,m)=>a+parseFloat(m['HABER']||0),0);$(debeId).textContent=fmt(td);$(haberId).textContent=fmt(th);$(saldoId).textContent=fmt(td-th);}
 function renderMovimientosCliente(movs){$('client-loading').style.display='none';if(!movs.length){$('client-empty').style.display='block';actualizarSummary([],'sum-debe','sum-haber','sum-saldo');return;}renderMovimientos(movs,'client-tbody');$('client-table').style.display='table';actualizarSummary(movs,'sum-debe','sum-haber','sum-saldo');}
@@ -332,13 +378,83 @@ async function cargarAdmin(){
   }catch(e){$('admin-loading').innerHTML='<p style="color:var(--red)">Error al cargar datos.</p>';}
 }
 function verCuentaCliente(nombre){document.querySelectorAll('.admin-tab').forEach((t,i)=>t.classList.toggle('active',i===4));['resumen','recibo','cargo','nc'].forEach(t=>$(`admin-${t}`).style.display='none');$('admin-historial').style.display='';$('historial-cliente').value=nombre;cargarHistorial();}
-function adminTab(tab,btn){document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');['resumen','recibo','cargo','nc','historial'].forEach(t=>$(`admin-${t}`).style.display=t===tab?'':'none');}
+function adminTab(tab,btn){document.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));if(btn)btn.classList.add('active');['resumen','recibo','cargo','nc','historial'].forEach(t=>$(`admin-${t}`).style.display=t===tab?'':'none');if(tab==='recibo'&&$('recibo-cliente').value)cargarPanelRecibo();}
 async function cargarHistorial(){const nombre=$('historial-cliente').value;if(!nombre){$('admin-summary').style.display='none';$('admin-table-wrap').style.display='none';return;}try{const{movs}=await getMovimientos();const cm=movs.filter(m=>m['CLIENTE'].toString().trim()===nombre);$('admin-summary').style.display='grid';$('admin-table-wrap').style.display='';actualizarSummary(cm,'admin-sum-debe','admin-sum-haber','admin-sum-saldo');renderMovimientos(cm,'admin-tbody');}catch(e){console.error(e);}}
 
-async function guardarRecibo(){const cliente=$('recibo-cliente').value,monto=parseFloat($('recibo-monto').value),obs=$('recibo-obs').value.trim();if(!cliente||!monto||monto<=0)return;$('btn-recibo').disabled=true;$('recibo-ok').style.display='none';$('recibo-err').style.display='none';try{const{movs}=await getMovimientos();const recibos=movs.filter(m=>m['CLIENTE'].toString().trim()===cliente&&(m['TIPO']||'').toUpperCase()==='RECIBO');await escribirMovimiento(today(),cliente,'RECIBO',`REC-${recibos.length+1}`,0,monto,obs);$('recibo-ok').style.display='block';$('recibo-monto').value='';$('recibo-obs').value='';}catch(e){$('recibo-err').textContent='Error al registrar.';$('recibo-err').style.display='block';}finally{$('btn-recibo').disabled=false;}}
-async function guardarCargo(){const cliente=$('cargo-cliente').value,monto=parseFloat($('cargo-monto').value),concepto=$('cargo-concepto').value.trim();if(!cliente||!monto||monto<=0||!concepto)return;$('btn-cargo').disabled=true;$('cargo-ok').style.display='none';$('cargo-err').style.display='none';try{await escribirMovimiento(today(),cliente,'CARGO','',monto,0,concepto);$('cargo-ok').style.display='block';$('cargo-monto').value='';$('cargo-concepto').value='';}catch(e){$('cargo-err').textContent='Error al registrar.';$('cargo-err').style.display='block';}finally{$('btn-cargo').disabled=false;}}
-async function guardarNC(){const cliente=$('nc-cliente').value,monto=parseFloat($('nc-monto').value),obs=$('nc-obs').value.trim();if(!cliente||!monto||monto<=0)return;$('btn-nc').disabled=true;$('nc-ok').style.display='none';$('nc-err').style.display='none';try{await escribirMovimiento(today(),cliente,'NOTA DE CREDITO','',0,monto,obs);$('nc-ok').style.display='block';$('nc-monto').value='';$('nc-obs').value='';}catch(e){$('nc-err').textContent='Error al registrar.';$('nc-err').style.display='block';}finally{$('btn-nc').disabled=false;}}
-async function escribirMovimiento(fecha,cliente,tipo,numero,debe,haber,obs){const params=new URLSearchParams({action:'write',sheetId:SHEET_ID,sheet:'MOVIMIENTOS',row:JSON.stringify([fecha,'',cliente,tipo,numero,debe,haber,obs])});const res=await fetch(APPS_SCRIPT_URL+'?'+params.toString());const data=await res.json();if(!data.ok)throw new Error(data.error||'error');}
+async function guardarRecibo(){const cliente=$('recibo-cliente').value,monto=parseFloat($('recibo-monto').value),obs=$('recibo-obs').value.trim();if(!cliente||!monto||monto<=0)return;$('btn-recibo').disabled=true;$('recibo-ok').style.display='none';$('recibo-err').style.display='none';try{const{movs}=await getMovimientos();const recibos=movs.filter(m=>m['CLIENTE'].toString().trim()===cliente&&(m['TIPO']||'').toUpperCase()==='RECIBO');await escribirMovimiento(today(),cliente,'RECIBO',`REC-${recibos.length+1}`,0,monto,obs);$('recibo-ok').style.display='block';$('recibo-monto').value='';$('recibo-obs').value='';await refrescarTodo();}catch(e){$('recibo-err').textContent='Error al registrar.';$('recibo-err').style.display='block';}finally{$('btn-recibo').disabled=false;}}
+async function guardarCargo(){const cliente=$('cargo-cliente').value,monto=parseFloat($('cargo-monto').value),concepto=$('cargo-concepto').value.trim();if(!cliente||!monto||monto<=0||!concepto)return;$('btn-cargo').disabled=true;$('cargo-ok').style.display='none';$('cargo-err').style.display='none';try{await escribirMovimiento(today(),cliente,'CARGO','',monto,0,concepto);$('cargo-ok').style.display='block';$('cargo-monto').value='';$('cargo-concepto').value='';await refrescarTodo();}catch(e){$('cargo-err').textContent='Error al registrar.';$('cargo-err').style.display='block';}finally{$('btn-cargo').disabled=false;}}
+async function guardarNC(){const cliente=$('nc-cliente').value,monto=parseFloat($('nc-monto').value),obs=$('nc-obs').value.trim();if(!cliente||!monto||monto<=0)return;$('btn-nc').disabled=true;$('nc-ok').style.display='none';$('nc-err').style.display='none';try{await escribirMovimiento(today(),cliente,'NOTA DE CREDITO','',0,monto,obs);$('nc-ok').style.display='block';$('nc-monto').value='';$('nc-obs').value='';await refrescarTodo();}catch(e){$('nc-err').textContent='Error al registrar.';$('nc-err').style.display='block';}finally{$('btn-nc').disabled=false;}}
+async function escribirMovimiento(fecha,cliente,tipo,numero,debe,haber,obs){const params=new URLSearchParams({action:'write',sheetId:SHEET_ID,sheet:'MOVIMIENTOS',row:JSON.stringify([fecha,'',cliente,tipo,numero,debe,haber,obs])});const res=await fetch(APPS_SCRIPT_URL+'?'+params.toString());const data=await res.json();if(!data.ok)throw new Error(data.error||'error');localPend.push({FECHA:fecha,CLIENTE:cliente,TIPO:tipo,NUMERO:numero,DEBE:debe,HABER:haber,OBSERVACION:obs,_t:Date.now()});}
+async function llamarScript(params){const res=await fetch(APPS_SCRIPT_URL+'?'+new URLSearchParams(params).toString());const data=await res.json();if(!data.ok)throw new Error(data.error||'error');return data;}
+
+// Después de grabar algo, se actualizan todas las vistas (tarjetas del resumen,
+// Ver cuenta y el panel de Recibo) sin tener que volver a entrar al cliente.
+async function refrescarTodo(){try{await silentRefreshAdmin();const h=$('historial-cliente').value;if(h&&$('admin-historial').style.display!=='none')await cargarHistorial();if($('recibo-cliente').value)await cargarPanelRecibo(true);pulseRefreshDot();}catch(e){console.error(e);}}
+
+/* ---------- Solapa Recibo: notas de pedido sin seña ---------- */
+// NP pendiente = alguna fila de PEDIDOS de esa nota en FACTURADO PREORDER / SEPARADO / PENDIENTE
+// que no tenga X en SEÑA (una P cuenta como pendiente: al marcar pasa a X).
+// LISTO, PRODUCCIÓN, ENTREGADO y CANCELADO no aparecen.
+const ESTADOS_SENA=['FACTURADO PREORDER','SEPARADO','PENDIENTE'];
+let marcandoSena=false;
+const marcadasSesion={}; // cliente -> {numero: {filas, fechas, previos}} para mostrar lo recién marcado y poder deshacer
+const estadoFila=r=>String(r['ESTADO']||'').trim().toUpperCase().replace(/\s+/g,' ');
+const senaFila=r=>String(r['SEÑA']||'').trim().toUpperCase();
+async function cargarPanelRecibo(silencioso){
+  const cliente=$('recibo-cliente').value;
+  if(!cliente){$('recibo-panel').style.display='none';return;}
+  $('recibo-panel').style.display='';
+  if(!silencioso){$('pend-loading').style.display='';$('pend-table').style.display='none';$('pend-empty').style.display='none';}
+  try{
+    const[{movs},pedidos]=await Promise.all([getMovimientos(),getPedidos(!silencioso)]);
+    if($('recibo-cliente').value!==cliente)return; // cambiaron de cliente mientras cargaba
+    const cm=movs.filter(m=>m['CLIENTE'].toString().trim()===cliente);
+    actualizarSummary(cm,'rec-sum-debe','rec-sum-haber','rec-sum-saldo');
+    const porFact={};pedidos.forEach(r=>{const f=normNum(r['FACTURA #']||r['FACTURA']);if(f)(porFact[f]=porFact[f]||[]).push(r);});
+    const hechas=marcadasSesion[cliente]||{};
+    const pend=buildRows(cm,true).filter(x=>x.clickable).map(x=>{
+      const filas=(porFact[x.numero]||[]).filter(r=>ESTADOS_SENA.includes(estadoFila(r)));
+      const sin=filas.filter(r=>senaFila(r)!=='X');
+      return{...x,total:filas.length,sin:sin.length,hecha:hechas[x.numero]};
+    }).filter(x=>x.hecha||x.sin>0);
+    renderPendientes(pend,cliente);
+  }catch(e){console.error(e);if(!silencioso){$('pend-loading').innerHTML='<p style="color:var(--red)">Error al cargar las notas de pedido.</p>';}}
+}
+function renderPendientes(pend,cliente){
+  $('pend-loading').style.display='none';
+  if(!pend.length){$('pend-table').style.display='none';$('pend-empty').style.display='block';return;}
+  $('pend-empty').style.display='none';$('pend-table').style.display='table';
+  const tbody=$('pend-tbody');tbody.innerHTML='';
+  pend.forEach(x=>{
+    const tr=document.createElement('tr');tr.className='pend-row'+(x.hecha?' pend-done':'');
+    const art=x.hecha?`<span class="pend-status">✓ Seña marcada (${x.hecha.filas.length})</span><button class="btn-link" data-undo>Deshacer</button>`:(x.sin<x.total?`${x.sin} de ${x.total} <span class="pend-parcial">sin X</span>`:`${x.total}`);
+    tr.innerHTML=`<td class="pend-check"><input type="checkbox" ${x.hecha?'checked disabled':''} aria-label="Marcar seña NP-${x.numero}"></td><td class="mono">${x.m['FECHA']||'—'}</td><td><span class="badge badge-pedido">Nota de pedido</span></td><td class="mono">NP-${x.numero}</td><td class="amount-debe">${x.debe>0?fmt(x.debe):'—'}</td><td>${art}</td>`;
+    const cb=tr.querySelector('input');
+    cb.onclick=ev=>ev.stopPropagation();
+    cb.onchange=()=>{if(cb.checked)marcarSena(cliente,x.numero,tr);};
+    const undo=tr.querySelector('[data-undo]');
+    if(undo)undo.onclick=ev=>{ev.stopPropagation();deshacerSena(cliente,x.numero,tr);};
+    tr.onclick=ev=>{if(ev.target.closest('.pend-check'))return;openItemsModal(x.numero,x.m['FECHA']||'—',cliente);};
+    tbody.appendChild(tr);
+  });
+}
+function estadoCelda(tr,html){tr.lastElementChild.innerHTML=html;}
+async function marcarSena(cliente,numero,tr){
+  const cb=tr.querySelector('input');cb.disabled=true;marcandoSena=true;estadoCelda(tr,'<span class="pend-parcial">Marcando…</span>');
+  try{
+    const r=await llamarScript({action:'marcarSena',factura:numero});
+    (marcadasSesion[cliente]=marcadasSesion[cliente]||{})[numero]={filas:r.filas||[],fechas:r.fechas||[],previos:r.previos||[]};
+    pedidosCache=null;
+  }catch(e){cb.checked=false;cb.disabled=false;estadoCelda(tr,'<span class="pend-status err">No se pudo marcar. Probá de nuevo.</span>');marcandoSena=false;return;}
+  marcandoSena=false;await cargarPanelRecibo(true);
+}
+async function deshacerSena(cliente,numero,tr){
+  const h=(marcadasSesion[cliente]||{})[numero];if(!h)return;
+  marcandoSena=true;estadoCelda(tr,'<span class="pend-parcial">Deshaciendo…</span>');
+  try{await llamarScript({action:'desmarcarSena',factura:numero,filas:JSON.stringify(h.filas),fechas:JSON.stringify(h.fechas),previos:JSON.stringify(h.previos||[])});delete marcadasSesion[cliente][numero];pedidosCache=null;}
+  catch(e){estadoCelda(tr,'<span class="pend-status err">No se pudo deshacer.</span>');marcandoSena=false;return;}
+  marcandoSena=false;await cargarPanelRecibo(true);
+}
 
 document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;if(isModalOpen)return;if($('login-admin').style.display!=='none')loginAdmin();else loginCliente();});
 </script>
