@@ -500,6 +500,17 @@ function PMKDespachos() {
   const [labels, setLabels] = useState([]);
   const [sel, setSel] = useState(new Set());
   const [saving, setSaving] = useState(false);
+  const [saveProg, setSaveProg] = useState(null);
+  React.useEffect(() => {
+    if (!saving) return;
+    const h = e => {
+      e.preventDefault();
+      e.returnValue = "Todavía se están guardando los ENTREGADO. Si cerrás ahora, algunos no se guardan.";
+      return e.returnValue;
+    };
+    window.addEventListener("beforeunload", h);
+    return () => window.removeEventListener("beforeunload", h);
+  }, [saving]);
   const [toast, setToast] = useState(null);
   const [editName, setEditName] = useState({});
   const [printImages, setPrintImages] = useState([]);
@@ -521,26 +532,36 @@ function PMKDespachos() {
     const d = await r.json();
     return d.values || [];
   };
-  const updateRow = async rowIndex => {
-    const sheetRow = rowIndex + 2;
+  const updateRow = async sheetRow => {
     const r = await fetch(`${SCRIPT_URL}?action=update&token=${TOKEN}&sheet=PEDIDOS&row=${sheetRow}&col=12&value=ENTREGADO`);
-    return r.json().catch(() => ({}));
+    const d = await r.json().catch(() => ({}));
+    if (!d || d.ok !== true) throw new Error(d && d.error || `respuesta inválida (HTTP ${r.status})`);
+    return d;
+  };
+  // Lee la planilla y devuelve las filas con su número REAL de fila (1 = encabezado).
+  // Así no nos desfasamos aunque haya filas vacías en el medio.
+  const readRows = async () => {
+    const raw = await readSheet();
+    return raw.map((row, i) => ({
+      row,
+      sheetRow: i + 1
+    })).filter(({
+      row,
+      sheetRow
+    }) => sheetRow > 1 && row.some(c => (c || "").toString().trim()));
   };
 
   // ── Encontrar items que matchean con el nombre ────
-  const findItems = (name, rows, labelIdx) => rows.map((row, idx) => ({
-    row,
-    idx
-  })).filter(({
+  const findItems = (name, rows, labelIdx) => rows.filter(({
     row
   }) => OK_STATES.has((row[C.ESTADO] || "").trim().toUpperCase())).filter(({
     row
   }) => namesMatch(name, row[C.CLIENTE] || "")).map(({
     row,
-    idx
+    sheetRow
   }) => ({
-    id: `${labelIdx}-${idx}`,
-    rowIndex: idx,
+    id: `${labelIdx}-${sheetRow}`,
+    sheetRow,
     cliente: row[C.CLIENTE] || "",
     articulo: row[C.ARTICULO] || "",
     color: row[C.COLOR] || "",
@@ -559,11 +580,7 @@ function PMKDespachos() {
         n: 0,
         msg: "Leyendo planilla…"
       });
-      let rows = await readSheet();
-      rows = rows.filter(row => row.some(c => (c || "").toString().trim()));
-      if (rows.length && (rows[0][0] || "").toString().toLowerCase().includes("fecha")) {
-        rows = rows.slice(1);
-      }
+      const rows = await readRows();
       sheetRowsRef.current = rows;
 
       // Abrir todos los PDFs y contar páginas totales
@@ -648,24 +665,121 @@ function PMKDespachos() {
     if (sel.size === all.length) setSel(new Set());else setSel(new Set(all));
   };
   const markEntregado = async () => {
-    const toMark = labels.flatMap(l => l.items).filter(i => sel.has(i.id));
+    const toMark = labels.flatMap(l => l.items).filter(i => sel.has(i.id) && i.estado !== "ENTREGADO");
     if (!toMark.length) return;
     setSaving(true);
-    // Evitar marcar la misma fila dos veces (si dos etiquetas matchearon la misma fila)
-    const uniqueRows = [...new Set(toMark.map(i => i.rowIndex))];
-    let ok = 0;
-    for (const rowIndex of uniqueRows) {
-      try {
-        await updateRow(rowIndex);
-        ok++;
-      } catch (e) {
-        console.error(e);
+    setToast(null);
+    const sameItem = (row, it) => (row[C.CLIENTE] || "").trim() === it.cliente.trim() && (row[C.ARTICULO] || "").trim() === it.articulo.trim() && (row[C.COLOR] || "").toString().trim() === it.color.toString().trim() && (row[C.TALLE] || "").toString().trim() === it.talle.toString().trim();
+    const isOk = row => OK_STATES.has((row[C.ESTADO] || "").trim().toUpperCase());
+    const done = [];
+    const failed = [];
+    try {
+      // 1) Releer la planilla justo antes de guardar y confirmar que cada fila
+      //    sigue siendo la misma (si alguien insertó o borró filas, la buscamos de nuevo).
+      setSaveProg({
+        done: 0,
+        total: 0,
+        msg: "Verificando planilla…"
+      });
+      const fresh = await readRows();
+      const byRow = new Map(fresh.map(r => [r.sheetRow, r.row]));
+      const claimed = new Set();
+      const jobs = [];
+      for (const it of toMark) {
+        let target = null;
+        const cur = byRow.get(it.sheetRow);
+        if (cur && sameItem(cur, it) && isOk(cur) && !claimed.has(it.sheetRow)) target = it.sheetRow;else {
+          const alt = fresh.find(r => !claimed.has(r.sheetRow) && sameItem(r.row, it) && isOk(r.row));
+          if (alt) target = alt.sheetRow;
+        }
+        if (target == null) {
+          const ya = cur && sameItem(cur, it) && (cur[C.ESTADO] || "").trim().toUpperCase() === "ENTREGADO";
+          if (ya) done.push({
+            it,
+            sheetRow: it.sheetRow
+          });else failed.push({
+            it,
+            why: "ya no está como LISTO/SEPARADO en la planilla"
+          });
+          continue;
+        }
+        claimed.add(target);
+        jobs.push({
+          it,
+          sheetRow: target
+        });
       }
+      // 2) Guardar de a 5 en paralelo (antes era de a uno y tardaba mucho), con 1 reintento.
+      let n = 0;
+      const total = jobs.length;
+      setSaveProg({
+        done: 0,
+        total,
+        msg: ""
+      });
+      const worker = async () => {
+        while (jobs.length) {
+          const job = jobs.shift();
+          try {
+            try {
+              await updateRow(job.sheetRow);
+            } catch (e1) {
+              await new Promise(r => setTimeout(r, 1200));
+              await updateRow(job.sheetRow);
+            }
+            done.push(job);
+          } catch (e) {
+            console.error(e);
+            failed.push({
+              it: job.it,
+              why: e.message
+            });
+          }
+          n++;
+          setSaveProg({
+            done: n,
+            total,
+            msg: ""
+          });
+        }
+      };
+      await Promise.all(Array.from({
+        length: Math.min(5, total || 1)
+      }, worker));
+    } catch (e) {
+      console.error(e);
+      failed.push(...toMark.filter(it => !done.some(d => d.it.id === it.id) && !failed.some(f => f.it.id === it.id)).map(it => ({
+        it,
+        why: e.message
+      })));
     }
-    setToast({
-      type: "ok",
-      msg: `✓ ${ok} pedido${ok !== 1 ? "s" : ""} marcado${ok !== 1 ? "s" : ""} como ENTREGADO`
+    // 3) Reflejar en pantalla lo que quedó guardado
+    const okIds = new Set(done.map(d => d.it.id));
+    setLabels(prev => prev.map(l => ({
+      ...l,
+      items: l.items.map(i => okIds.has(i.id) ? {
+        ...i,
+        estado: "ENTREGADO"
+      } : i)
+    })));
+    setSel(prev => {
+      const ns = new Set(prev);
+      okIds.forEach(id => ns.delete(id));
+      return ns;
     });
+    const nOk = new Set(done.map(d => d.sheetRow)).size;
+    if (failed.length) {
+      setToast({
+        type: "err",
+        msg: `${nOk} marcado${nOk !== 1 ? "s" : ""} como ENTREGADO · ${failed.length} sin guardar: ${failed.slice(0, 3).map(f => `${f.it.cliente} ${f.it.articulo} ${f.it.talle}`).join(" / ")}${failed.length > 3 ? "…" : ""} (quedan tildados, probá de nuevo)`
+      });
+    } else {
+      setToast({
+        type: "ok",
+        msg: `✓ ${nOk} pedido${nOk !== 1 ? "s" : ""} marcado${nOk !== 1 ? "s" : ""} como ENTREGADO`
+      });
+    }
+    setSaveProg(null);
     setSaving(false);
   };
 
@@ -1205,7 +1319,7 @@ function PMKDespachos() {
       color: "#bbb",
       fontStyle: "italic"
     }
-  }, "No hay pedidos SEPARADO/LISTO para este destinatario."))))), view === "results" && !toast && /*#__PURE__*/React.createElement("div", {
+  }, "No hay pedidos SEPARADO/LISTO para este destinatario."))))), view === "results" && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "fixed",
       bottom: 0,
@@ -1253,10 +1367,11 @@ function PMKDespachos() {
       fontSize: 15,
       cursor: totalSel === 0 || saving || printing ? "not-allowed" : "pointer"
     }
-  }, saving ? "Guardando…" : `Marcar ${totalSel} como ENTREGADO`))), view === "results" && toast && /*#__PURE__*/React.createElement("div", {
+  }, saving ? saveProg && saveProg.total ? `Guardando ${saveProg.done}/${saveProg.total}…` : saveProg && saveProg.msg || "Guardando…" : `Marcar ${totalSel} como ENTREGADO`))), view === "results" && toast && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "fixed",
-      bottom: 0,
+      bottom: 74,
+      zIndex: 5,
       left: 0,
       right: 0,
       padding: "12px 16px",
